@@ -1,6 +1,18 @@
 from django.shortcuts import render
 from .scripts.mainpage import *
+from .scripts.auth import *
+from .scripts.profile import *
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
+@csrf_exempt
 def mainpage_view(request):
     return mainpage_back(request)
+
+@csrf_exempt
+def auth_view(request):
+    return auth_back(request)
+
+@csrf_exempt
+def profile_view(request):
+    return profile_back(request)
