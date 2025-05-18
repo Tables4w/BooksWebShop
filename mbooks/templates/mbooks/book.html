@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -17,7 +18,7 @@
   />
 
   <!-- Our CSS -->
-  <link rel="stylesheet" href="style.css" />
+   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 </head>
 <body>
 
@@ -142,8 +143,8 @@
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Books Data -->
-  <script src="books-data.js"></script>
+  <script src="{% 'js/books-data.js' %}"></script>
   <!-- Our JS -->
-  <script src="book.js"></script>
+  <script src="{% 'js/book.js' %}"></script>
 </body>
 </html>
