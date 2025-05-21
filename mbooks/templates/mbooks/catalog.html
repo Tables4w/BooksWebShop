@@ -126,7 +126,8 @@
   <!-- Скрипты -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="{% 'js/books-data.js' %}"></script>
-  <script src="{% 'js/catalog.js' %}"></script>
+  <script> const books = {{ books_json|safe }}; </script>
+  <!--<script src="{% static 'js/books-data.js' %}"></script>-->
+  <script src="{% static 'js/catalog.js' %}"></script>
 </body>
 </html> 
