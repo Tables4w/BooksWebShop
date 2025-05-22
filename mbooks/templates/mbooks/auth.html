@@ -28,17 +28,17 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" href="index.html" style="color: black;">Главная</a>
+          <a class="nav-link" href="/main/" style="color: black;">Главная</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="catalog.html">Каталог</a>
+          <a class="nav-link" href="/catalog/">Каталог</a>
         </li>
       </ul>
 
       <!-- Поисковая строка -->
-      <form class="d-flex mx-auto position-relative me-4 w-100" role="search" style="max-width: 7000px;">
-        <input class="form-control rounded-pill px-3 w-100" type="search" placeholder="Поиск книг" aria-label="Поиск" style="width: 600px;">
-        <button class="btn btn-search position-absolute end-0 top-0 mt-1 me-2" type="button" style="background: none; border: none; color: #6c4ed9; font-size: 1.2rem;">
+      <form class="d-flex mx-auto position-relative me-4 w-100" name="searchForm" method="post" action="/catalog/" role="search" style="max-width: 7000px;">
+        <input class="form-control rounded-pill px-3 w-100" type="search" name="search" placeholder="Поиск книг" aria-label="Поиск" style="width: 600px;" value="{% if searched and searched.query %}{{searched.query}}{% endif%}">
+        <button class="btn btn-search position-absolute end-0 top-0 mt-1 me-2" type="submit" style="background: none; border: none; color: #6c4ed9; font-size: 1.2rem;">
           <i class="bi bi-search"></i>
         </button>
       </form>
@@ -52,7 +52,7 @@
           </a>
         </li>
  <li class="nav-item ms-1">
-    <a class="nav-link p-0 d-flex align-items-center justify-content-center" href="auth.html" title="Войти"
+    <a class="nav-link p-0 d-flex align-items-center justify-content-center" href="/auth/" title="Войти"
 	style="width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease;">
       <img src="files/header/user.png" alt="Войти" style="width: auto; height: auto; object-fit: cover;">
     </a>
