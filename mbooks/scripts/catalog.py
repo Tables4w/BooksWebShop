@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from mbooks.models import *
 import json
 import base64
@@ -7,12 +8,8 @@ from .specfunc import detect_image_type
 
 User=get_user_model();
 
-def catalog_back(request):
-    if request.method=='GET':
-        data = Book.objects.all()
-
-        books = []
-        for book in data:
+def serializeBooks(data, books):
+    for book in data:
             genres = Genre.objects.filter(bookgenre__book=book).values_list('name', flat=True)
             authors = Author.objects.filter(bookauthor__book=book).values_list('name', flat=True)
             publishers = Publisher.objects.filter(bookpublisher__book=book).values_list('name', flat=True)
@@ -35,9 +32,36 @@ def catalog_back(request):
                 'author': list(authors) if authors else '',
                 'publishers': list(publishers) if publishers else '',
             })
+    return books
+
+def catalog_back(request):
+    if request.method=='GET':
+        data = Book.objects.all()
+
+        books = []
+        
+        books=serializeBooks(data, books)
 
         books_json=json.dumps(books)
 
-        print('ok');
-
         return render(request, 'mbooks/catalog.html', {'books_json':books_json})
+    
+    if request.method=='POST':
+        searchstr=request.POST.get('search', '')
+
+        print(searchstr)
+
+        data = Book.objects.filter(name__icontains=searchstr)
+
+        books = []
+        
+        books=serializeBooks(data, books)
+
+        books_json=json.dumps(books)
+
+        #search_json=json.dumps();
+
+        return render(request, 'mbooks/catalog.html', {'books_json':books_json, 'searched':{'query':searchstr}})
+    
+    else:
+        return JsonResponse({'Error': 'Allowed methods: GET, POST'}, status=405)
