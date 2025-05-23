@@ -6,31 +6,13 @@ from json import dumps
 from .specfunc import detect_image_type
 
 
-# Не зря же писал эту функцию?.. да? ;(
-"""
-# Возвращает список книг в виде словарей из books-data.js (надеюсь, он для этого...)
-def load_books_data() -> list:
-
-    with open(join(settings.BASE_DIR, 'mbooks/static/js/books-data.js'), encoding='utf-8') as f:
-        text: str = f.read()
-
-    m = re.search(r'const\s+books\s*=\s*(\[[\s\S]*?\]);', text)
-    if not m: return []
-
-    data: list = []
-    try: data = json.loads(re.sub(r'(\b\w+\b)\s*:', r'"\1":', m.group(1).rstrip().rstrip(';')))
-    except json.JSONDecodeError as e: print(f"Неудалось привести к JSON из books-data.js: {e}")
-
-    return data
-"""
-
-
 """
 Возвращает список книг в виде словарей по переданному массиву new_books с ключами:
 'id' - айди книги
 'title' - название книги
 'price' - цена книги
 'image' - обложка книги (в формате jpg/jpeg)
+'sold' - количество проданных копий
 """
 def serializeBooks(new_books: list) -> list:
 
