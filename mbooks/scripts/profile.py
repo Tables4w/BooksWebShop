@@ -103,22 +103,7 @@ def profile_back(request):
                 user.save()
                 return JsonResponse({'success': True})
 
-            elif action_type == 'deposit':
-                # Пополнение баланса
-                try:
-                    amount = Decimal(request.POST.get('summ'))
-                    if amount <= 0:
-                        raise ValueError
-                except:
-                    errors['summ'] = ['Некорректная сумма']
-                    raise ValidationError
-
-                user.balance += amount
-                user.save()
-                return JsonResponse({
-                    'success': True,
-                    'new_balance': str(user.balance)
-                })
+            
 
             elif action_type == 'delete_account':
                 user.delete()

@@ -191,25 +191,7 @@ $('#savePasswordBtn').click(function() {
     });
 });
 
-// Пополнение баланса
-$('#balanceForm').submit(function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    formData.append('type', 'deposit');
-    
-    fetch('/profile/', {
-        method: 'POST',
-        body: formData
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            currentBalance = data.new_balance;
-            updateBalanceDisplay();
-            alert('Баланс пополнен!');
-        }
-    });
-});
+
 
 // Удаление аккаунта
 $('#confirmDeleteBtn').click(function() {
