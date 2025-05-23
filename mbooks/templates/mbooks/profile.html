@@ -75,29 +75,39 @@
         <div id="profile-data" class="profile-section">
           <h3>Личные данные</h3>
           <div class="card p-4 mb-3">
-            <form>
+            <form id="personal-data-form">
               <div class="row mb-3">
                 <div class="col-md-6">
                   <label class="form-label">Имя</label>
-                  <input type="text" class="form-control" placeholder="Имя" value="Иван">
+                  <input type="text" class="form-control" name="fname" 
+                        value="{{ user.first_name }}" required>
+                  <div class="invalid-feedback"></div>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Фамилия</label>
-                  <input type="text" class="form-control" placeholder="Фамилия" value="Иванов">
+                  <input type="text" class="form-control" name="lname" 
+                        value="{{ user.last_name }}" required>
+                  <div class="invalid-feedback"></div>
                 </div>
               </div>
               <div class="row mb-3">
                 <div class="col-md-6">
                   <label class="form-label">Пол</label>
-                  <select class="form-select">
-                    <option>Мужской</option>
-                    <option>Женский</option>
-                    <option>Другое</option>
+                  <select class="form-select" name="gender" required>
+                    {% for value, label in gender_choices %}
+                    <option value="{{ value }}" 
+                            {% if user.gender == value %}selected{% endif %}>
+                      {{ label }}
+                    </option>
+                    {% endfor %}
                   </select>
+                  <div class="invalid-feedback"></div>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Дата рождения</label>
-                  <input type="date" class="form-control" value="1990-01-01">
+                  <input type="date" class="form-control" name="dob" 
+                        value="{{ user.dob|date:'Y-m-d' }}" required>
+                  <div class="invalid-feedback"></div>
                 </div>
               </div>
               <button type="submit" class="btn btn-primary">Сохранить</button>

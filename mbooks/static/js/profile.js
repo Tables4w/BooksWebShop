@@ -146,6 +146,97 @@ $(document).ready(function() {
     localStorage.setItem('userBalance', currentBalance);
     updateBalanceDisplay();
 
+    // Обновление профиля
+$('#personal-data-form').on('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    formData.append('type', 'update_profile');
+    
+    fetch('/profile/', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Данные обновлены!');
+        } else {
+            Object.entries(data.errors).forEach(([field, messages]) => {
+                $(`#${field}`).addClass('is-invalid').next('.invalid-feedback').text(messages[0]);
+            });
+        }
+    });
+});
+//смена email
+$('#saveEmailBtn').on('click', function() {
+    const formData = new FormData();
+    formData.append('type', 'change_email');
+    formData.append('new_email', $('#newEmail').val());
+
+    fetch('/profile/', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include' // Для передачи кук
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Email успешно изменен!');
+            $('#emailModal').modal('hide');
+            // Обновляем email на странице
+            $('#currentEmail').val(data.new_email); 
+        } else {
+            // Вывод ошибок
+            Object.entries(data.errors).forEach(([field, messages]) => {
+                $(`#${field}`).addClass('is-invalid').next('.invalid-feedback').text(messages[0]);
+            });
+        }
+    });
+});
+// Смена пароля
+$('#savePasswordBtn').click(function() {
+    const formData = new FormData();
+    formData.append('type', 'change_password');
+    formData.append('current_password', $('#currentPassword').val());
+    formData.append('new_password', $('#newPassword').val());
+    formData.append('confirm_password', $('#confirmPassword').val());
+
+    fetch('/profile/', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            $('#passwordModal').modal('hide');
+            alert('Пароль изменен!');
+        } else {
+            handleErrors(data.errors);
+        }
+    });
+});
+
+
+
+// Удаление аккаунта
+$('#confirmDeleteBtn').click(function() {
+    fetch('/profile/', {
+        method: 'POST',
+        body: new FormData().append('type', 'delete_account')
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    });
+});
+
+function handleErrors(errors) {
+    Object.entries(errors).forEach(([field, messages]) => {
+        $(`#${field}`).addClass('is-invalid').next('.invalid-feedback').text(messages[0]);
+    });
+}
     // Здесь должна быть логика отправки данных на сервер
       //При добавлении отправки формы с помощью fetch, используя метод POST (Защиту от CSRF можно не реализовывать)
   //Собрать поля формы в const formData = new FormData();
