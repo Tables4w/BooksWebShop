@@ -167,7 +167,32 @@ $('#personal-data-form').on('submit', function(e) {
         }
     });
 });
+//смена email
+$('#saveEmailBtn').on('click', function() {
+    const formData = new FormData();
+    formData.append('type', 'change_email');
+    formData.append('new_email', $('#newEmail').val());
 
+    fetch('/profile/', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include' // Для передачи кук
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Email успешно изменен!');
+            $('#emailModal').modal('hide');
+            // Обновляем email на странице
+            $('#currentEmail').val(data.new_email); 
+        } else {
+            // Вывод ошибок
+            Object.entries(data.errors).forEach(([field, messages]) => {
+                $(`#${field}`).addClass('is-invalid').next('.invalid-feedback').text(messages[0]);
+            });
+        }
+    });
+});
 // Смена пароля
 $('#savePasswordBtn').click(function() {
     const formData = new FormData();
