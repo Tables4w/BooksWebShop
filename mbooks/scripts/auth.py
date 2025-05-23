@@ -124,7 +124,7 @@ def auth_back(request):
     elif request.method=='POST':
         Errors={}
         try:
-            formtype=request.POST.get('type');
+            formtype=request.POST.get('type')
 
             if formtype!='reg' and formtype!='login':
                 raise FormTypeInvalid("Invalid Form Type")
