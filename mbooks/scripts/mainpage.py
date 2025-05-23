@@ -58,7 +58,8 @@ def serializeBooks(new_books: list) -> list:
     return final_list
 
 # Количество книг в обоих каруселях
-ITEMS_IN_CAROUSEL: int = 6
+# (4, как и в script.js, если я правильно понял)
+ITEMS_IN_CAROUSEL: int = 4
 
 def mainpage_back(request):
     # Выводим страницу с переданным словарём, хранящим два JSON по ключам new_books_json и bestseller_books_json
