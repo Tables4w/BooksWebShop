@@ -1,13 +1,60 @@
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-
+from django.contrib.auth import authenticate, login
+from mbooks.models import *
 from django.core.exceptions import ValidationError
-from django.contrib.auth import update_session_auth_hash
-from django.core.validators import validate_email, RegexValidator
-from django.shortcuts import render
-from django.db import transaction
+from mbooks.scripts.auth import FormTypeInvalid
+from django.contrib.auth import get_user_model
 from decimal import Decimal
+from django.http import JsonResponse
+from django.contrib.auth import update_session_auth_hash, logout
+from django.core.validators import validate_email, RegexValidator
+from django.db import transaction
 from mbooks.models import User, Gender
+
+User=get_user_model()
+
+#Валидация данных карты и суммы пополнения
+def deposit_info_validate(errors, card_num, date, cvv, summ):
+    card_num_validate = RegexValidator(
+        regex=r'^[0-9]{16}$',
+        message='Номер карты может содержать только цифры, длина номера карты 16 символов'
+    )
+    
+    date_validate = RegexValidator(
+        regex=r'^\d{2}-\d{2}$',
+        message='Введите дату в формате MM-YY.'
+    )
+    
+    cvv_validate = RegexValidator(
+        regex=r'^[0-9]{3}$',
+        message='CVV может содержать только 3 цифры'
+    )
+    
+    summ_validate = RegexValidator(
+        regex=r'^(?!0\d)\d{1,12}(?:\.\d{1,2})?$',
+        message='Некорректная сумма'
+    )
+
+    try:
+        card_num_validate(card_num)
+    except ValidationError as e:
+        errors['card_num']=e.messages
+
+    try:
+        date_validate(date)
+    except ValidationError as e:
+        errors['date']=e.messages
+
+    try: 
+        cvv_validate(cvv)
+    except ValidationError as e:
+        errors['cvv']=e.messages
+
+    try:
+        summ_validate(summ)
+    except ValidationError as e:
+        errors['summ']=e.messages
 
 def validate_profile_data(errors, fname, lname, gender, dob):
     fname_validator = RegexValidator(
@@ -40,14 +87,30 @@ def validate_profile_data(errors, fname, lname, gender, dob):
         except ValidationError as e:
             errors[field] = e.messages
 
-
-
 def profile_back(request):
     if request.method == 'POST':
         errors = {}
         try:
             action_type = request.POST.get('type')
             user = request.user
+
+            #Если тип формы депозит выполняется пополнение    
+            if action_type=='deposit':
+
+                card_num=request.POST.get('card_num')
+                date=request.POST.get('date')
+                cvv=request.POST.get('cvv')
+                summ=request.POST.get('summ')
+                errors={}
+
+                deposit_info_validate(errors,card_num,date,cvv,summ)
+                if errors!={}:
+                    raise ValidationError("Validation error")
+                
+                request.user.balance += Decimal(summ)
+                request.user.save()
+
+                return JsonResponse({'success': 'Баланс пополнен успешно!'})
 
             if action_type == 'update_profile':
                 # Валидация основных данных
@@ -81,7 +144,7 @@ def profile_back(request):
                 if new_pass != confirm:
                     errors['confirm_password'] = ['Пароли не совпадают']
                 if errors:
-                    raise ValidationError
+                    raise ValidationError("Validation error")
 
                 user.set_password(new_pass)
                 user.save()
@@ -103,11 +166,14 @@ def profile_back(request):
                 user.save()
                 return JsonResponse({'success': True})
 
-            
-
             elif action_type == 'delete_account':
+                logout(request);
                 user.delete()
-                return JsonResponse({'redirect': '/auth/'})
+                return redirect('auth')
+            
+            elif action_type == 'logout':
+                logout(request)
+                return redirect('auth')
 
             else:
                 return JsonResponse({'error': 'Неизвестное действие'}, status=400)
@@ -118,7 +184,11 @@ def profile_back(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     # GET запрос
-    return render(request, 'mbooks/profile.html', {
-        'user': request.user,
-        'gender_choices': Gender.choices
-    })
+    if request.method=='GET':
+        return render(request, 'mbooks/profile.html', {
+            'user': request.user,
+            'gender_choices': Gender.choices
+        })
+    
+    else:
+        return JsonResponse({'Error': 'Allowed methods: GET, POST'}, status=405) ;

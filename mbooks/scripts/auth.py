@@ -140,11 +140,15 @@ def auth_back(request):
         
                 validatereg(Errors, formlogin, paswd, gender, email, dob, fname, lname)
 
-                if(Errors!={}): raise ValidationError
+                if(Errors!={}): raise ValidationError("Validation error")
 
                 if User.objects.filter(username=formlogin).exists():
                     Errors['login']='Такой логин уже занят'
-                    raise ValidationError
+                    raise ValidationError("Validation existing login error")
+                
+                if User.objects.filter(email=email).exists():
+                    Errors['email']='Такой email уже занят'
+                    raise ValidationError("Validation existing email error")
                 
                 user=User.objects.create_user(username=formlogin, password=paswd, gender=gender, email=email,
                                               dob=dob, first_name=fname, last_name=lname, role_id=1)
@@ -157,7 +161,7 @@ def auth_back(request):
 
                 validatelog(Errors, formlogin, paswd)
 
-                if(Errors!={}): raise ValidationError
+                if(Errors!={}): raise ValidationError("Validation error")
 
                 user=authenticate(request, username=formlogin, password=paswd)
                 if user is not None:
