@@ -7,20 +7,20 @@ from .specfunc import detect_image_type
 
 
 """
-Возвращает список книг в виде словарей по переданному массиву new_books с ключами:
+Возвращает список книг в виде словарей по переданному массиву books с ключами:
 'id' - айди книги
 'title' - название книги
 'price' - цена книги
 'image' - обложка книги (в формате jpg/jpeg)
 'sold' - количество проданных копий
 """
-def serializeBooks(new_books: list) -> list:
+def serializeBooks(books: list) -> list:
 
     # Результирующий список (тот, который будет возвращён функцией serializeBooks)
     final_list: list = []
 
     # Проход по всему списку книг
-    for book in new_books:
+    for book in books:
         # Хранит в себе закодированное изображение
         cover: str = ''
         if book.cover:
