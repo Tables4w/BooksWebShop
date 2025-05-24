@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 
 class Gender(models.TextChoices):
@@ -29,6 +30,7 @@ class Book(models.Model):
     publication_date = models.DateField(null=False)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     cover = models.BinaryField()
+    sold = models.PositiveIntegerField()
 
     def __str__(self):
         return self.name
