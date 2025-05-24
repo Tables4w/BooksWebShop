@@ -1,4 +1,3 @@
-/*
 const books = [
   {
     id: 1,
@@ -55,5 +54,4 @@ const books = [
     genre: "Роман",
     image: "files/bestsellers/5.png"
   }
-];
-*/
+]; 
