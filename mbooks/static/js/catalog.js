@@ -2,7 +2,7 @@
 $(document).ready(function() {
   // --- Вспомогательные функции для фильтров ---
   function getUnique(arr, key) {
-    return [...new Set(arr.flatMap(item => item[key]))].filter(Boolean);
+    return [...new Set(arr.map(item => item[key]))].filter(Boolean);
   }
 
   // --- Рендер фильтров ---
@@ -49,8 +49,8 @@ $(document).ready(function() {
     const { selectedGenres, selectedAuthors, yearFrom, yearTo } = getSelectedFilters();
     const search = getSearchQuery();
     return books.filter(book => {
-      let genreOk = !selectedGenres.length || selectedGenres.every(g => book.genre.includes(g));
-      let authorOk = !selectedAuthors.length || selectedAuthors.every(a => book.author.includes(a));
+      let genreOk = !selectedGenres.length || selectedGenres.includes(book.genre);
+      let authorOk = !selectedAuthors.length || selectedAuthors.includes(book.author);
       let yearOk = true;
       if (!isNaN(yearFrom)) yearOk = book.year >= yearFrom;
       if (!isNaN(yearTo)) yearOk = yearOk && book.year <= yearTo;
