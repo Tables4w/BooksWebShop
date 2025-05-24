@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.core.validators import RegexValidator
 from django.http import JsonResponse
 from mbooks.models import *
-
+from django.views.decorators.csrf import csrf_exempt
 User=get_user_model();
 
 #Класс исключений, возникающих при обработке формы
@@ -115,7 +115,7 @@ def validatelog(errors, log, paswd):
     except ValidationError as e:
         errors['password'] = e.messages
 
-
+@csrf_exempt
 def auth_back(request):
 
     if request.method=='GET':
@@ -124,7 +124,7 @@ def auth_back(request):
     elif request.method=='POST':
         Errors={}
         try:
-            formtype=request.POST.get('type');
+            formtype=request.POST.get('type')
 
             if formtype!='reg' and formtype!='login':
                 raise FormTypeInvalid("Invalid Form Type")
