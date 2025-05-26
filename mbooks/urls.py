@@ -5,4 +5,5 @@ urlpatterns = [
     path('auth/', views.auth_view, name='auth'),
     path('profile/', views.profile_view, name='profile'),
     path('catalog/', views.catalog_view, name='catalog'),
+    path('book/<int:id>/', views.book_view, name='book'),
 ]

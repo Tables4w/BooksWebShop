@@ -78,7 +78,7 @@ $(document).ready(function() {
             <img src="${book.image}" alt="${book.title}" class="book-cover card-img-top" />
             <div class="card-body d-flex flex-column">
               <div class="book-title mb-1">${book.title}</div>
-              <div class="text-muted mb-2">${book.author || ''}</div>
+              <div class="text-muted mb-2">${Array.isArray(book.author) ? book.author.join(', ') : ''}</div>
               <div class="book-price mb-2">${book.price} ₽</div>
               <button class="btn btn-outline-primary mt-auto w-100 buy-btn" data-id="${book.id}">Купить</button>
             </div>
@@ -108,8 +108,8 @@ $(document).ready(function() {
   // --- Обновление суммы в корзине ---
   function updateCartTotal() {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const total = cart.reduce((sum, item) => sum + parseInt(item.price), 0);
-    $('#cart-total').text(`${total} ₽`);
+    const total = cart.reduce((sum, item) => sum + parseFloat(item.price), 0);
+    $('#cart-total').text(parseFloat(total).toFixed(2) + ' ₽');
   }
 
   // --- События фильтров и поиска ---
@@ -134,7 +134,7 @@ $(document).ready(function() {
   $(document).on('click', '.book-card', function(e) {
     if (!$(e.target).hasClass('buy-btn')) {
       const bookId = $(this).data('id');
-      window.location.href = `book.html?id=${bookId}`;
+      window.location.href = `/book/${bookId}/`;
     }
   });
 

@@ -30,7 +30,7 @@ def serializeBooks(data, books):
                 'image': cover_image if cover_image else '',
                 'genre': list(genres) if genres else '',
                 'author': list(authors) if authors else '',
-                'publishers': list(publishers) if publishers else '',
+                'publisher': list(publishers) if publishers else '',
             })
     return books
 

@@ -3,6 +3,7 @@ from .scripts.mainpage import *
 from .scripts.auth import *
 from .scripts.profile import *
 from .scripts.catalog import *
+from .scripts.book import *
 from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
@@ -21,3 +22,7 @@ def profile_view(request):
 @csrf_exempt
 def catalog_view(request):
     return catalog_back(request)
+
+@csrf_exempt
+def book_view(request, id):
+    return book_back(request, id);

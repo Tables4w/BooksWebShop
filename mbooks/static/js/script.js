@@ -15,8 +15,8 @@ function addToCart(bookId, title, price) {
 // Функция обновления суммы в корзине
 function updateCartTotal() {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const total = cart.reduce((sum, item) => sum + parseInt(item.price), 0);
-  $('#cart-total').text(`${total} ₽`);
+  const total = cart.reduce((sum, item) => sum + parseFloat(item.price), 0);
+  $('#cart-total').text(parseFloat(total).toFixed(2) + ' ₽');
 }
 
 // Инициализация карусели
@@ -53,7 +53,7 @@ $(document).ready(function() {
   books.forEach(book => {
     const bookHtml = `
       <div>
-        <a href="book.html?id=${book.id}" class="text-decoration-none text-dark">
+        <a href="/book/${book.id}/" class="text-decoration-none text-dark">
           <div class="card border-0">
             <img src="${book.image}" alt="${book.title}" class="book-cover card-img-top" />
             <div class="card-body p-2">
@@ -78,7 +78,7 @@ $(document).ready(function() {
     e.preventDefault();
     const bookId = parseInt($(this).data('id'));
     const title = $(this).data('title');
-    const price = parseInt($(this).data('price'));
+    const price = parseFloat($(this).data('price'));
     addToCart(bookId, title, price);
   });
 
