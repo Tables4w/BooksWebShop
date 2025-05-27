@@ -4,6 +4,7 @@ from .scripts.auth import *
 from .scripts.profile import *
 from .scripts.catalog import *
 from .scripts.book import *
+from .scripts.basket import *
 from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
@@ -25,4 +26,8 @@ def catalog_view(request):
 
 @csrf_exempt
 def book_view(request, id):
-    return book_back(request, id);
+    return book_back(request, id)
+
+@csrf_exempt
+def basket_view(request):
+    return basket_back(request)
