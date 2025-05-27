@@ -102,6 +102,31 @@ $(document).ready(function() {
       });
       localStorage.setItem('cart', JSON.stringify(cart));
       updateCartTotal();
+
+      // Проверяем, авторизован ли пользователь
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (userData) {
+        // Отправляем ID книги на бэкенд
+        /*
+        $.ajax({
+          url: '/api/cart/add/',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          data: JSON.stringify({
+            book_id: bookId
+          }),
+          success: function(response) {
+            console.log('Книга успешно добавлена в корзину на сервере');
+          },
+          error: function(xhr, status, error) {
+            console.error('Ошибка при добавлении книги в корзину:', error);
+          }
+        });
+        */
+      }
     }
   }
 

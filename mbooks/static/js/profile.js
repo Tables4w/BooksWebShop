@@ -1,4 +1,59 @@
 $(document).ready(function() {
+  // Получаем данные пользователя из localStorage
+  const userData = JSON.parse(localStorage.getItem('userData'));
+  
+  if (!userData) {
+    // Если данных нет, перенаправляем на страницу входа
+    window.location.href = '/auth/';
+    return;
+  }
+
+  // Заполняем поля профиля данными пользователя
+  $('#profile-username').text(userData.username);
+  $('#profile-email').text(userData.email);
+  $('#profile-first-name').text(userData.first_name);
+  $('#profile-last-name').text(userData.last_name);
+  $('#profile-birth-date').text(userData.birth_date);
+  $('#profile-gender').text(userData.gender === 'male' ? 'Мужской' : 'Женский');
+  $('#profile-phone').text(userData.phone);
+  $('#profile-address').text(userData.address);
+
+  // Получение данных профиля с бэкенда
+  /*
+  $.ajax({
+    url: '/api/profile/',
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    success: function(response) {
+      // Заполняем поля профиля данными с сервера
+      $('#profile-username').text(response.username);
+      $('#profile-email').text(response.email);
+      $('#profile-first-name').text(response.first_name || 'Не указано');
+      $('#profile-last-name').text(response.last_name || 'Не указано');
+      $('#profile-birth-date').text(response.birth_date || 'Не указано');
+      $('#profile-gender').text(response.gender || 'Не указано');
+      $('#profile-phone').text(response.phone || 'Не указано');
+      $('#profile-address').text(response.address || 'Не указано');
+      
+      // Обновляем данные в localStorage
+      localStorage.setItem('userData', JSON.stringify(response));
+    },
+    error: function(xhr, status, error) {
+      console.error('Ошибка при получении данных профиля:', error);
+    }
+  });
+  */
+
+  // Обработка кнопки выхода
+  $('#logout-btn').click(function(e) {
+    e.preventDefault();
+    localStorage.removeItem('userData');
+    window.location.href = '/auth/';
+  });
+
   // Инициализация баланса
   let currentBalance = parseInt(localStorage.getItem('userBalance')) || 0;
   updateBalanceDisplay();
@@ -147,162 +202,113 @@ $(document).ready(function() {
     updateBalanceDisplay();
 
     // Обновление профиля
-$('#personal-data-form').on('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    formData.append('type', 'update_profile');
-    
-    fetch('/profile/', {
+    $('#personal-data-form').on('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      formData.append('type', 'update_profile');
+      
+      fetch('/profile/', {
         method: 'POST',
         body: formData
-    })
-    .then(r => r.json())
-    .then(data => {
+      })
+      .then(r => r.json())
+      .then(data => {
         if (data.success) {
-            alert('Данные обновлены!');
+          alert('Данные обновлены!');
         } else {
-            Object.entries(data.errors).forEach(([field, messages]) => {
-                $(`#${field}`).addClass('is-invalid').next('.invalid-feedback').text(messages[0]);
-            });
+          Object.entries(data.errors).forEach(([field, messages]) => {
+            $(`#${field}`).addClass('is-invalid').next('.invalid-feedback').text(messages[0]);
+          });
         }
+      });
     });
-});
-//смена email
-$('#saveEmailBtn').on('click', function() {
-    const formData = new FormData();
-    formData.append('type', 'change_email');
-    formData.append('new_email', $('#newEmail').val());
 
-    fetch('/profile/', {
+    // Смена email
+    $('#saveEmailBtn').on('click', function() {
+      const formData = new FormData();
+      formData.append('type', 'change_email');
+      formData.append('new_email', $('#newEmail').val());
+
+      fetch('/profile/', {
         method: 'POST',
         body: formData,
         credentials: 'include' // Для передачи кук
-    })
-    .then(response => response.json())
-    .then(data => {
+      })
+      .then(response => response.json())
+      .then(data => {
         if (data.success) {
-            alert('Email успешно изменен!');
-            $('#emailModal').modal('hide');
-            // Обновляем email на странице
-            $('#currentEmail').val(data.new_email); 
+          alert('Email успешно изменен!');
+          $('#emailModal').modal('hide');
+          // Обновляем email на странице
+          $('#currentEmail').val(data.new_email); 
         } else {
-            // Вывод ошибок
-            Object.entries(data.errors).forEach(([field, messages]) => {
-                $(`#${field}`).addClass('is-invalid').next('.invalid-feedback').text(messages[0]);
-            });
+          // Вывод ошибок
+          Object.entries(data.errors).forEach(([field, messages]) => {
+            $(`#${field}`).addClass('is-invalid').next('.invalid-feedback').text(messages[0]);
+          });
         }
+      });
     });
-});
-// Смена пароля
-$('#savePasswordBtn').click(function() {
-    const formData = new FormData();
-    formData.append('type', 'change_password');
-    formData.append('current_password', $('#currentPassword').val());
-    formData.append('new_password', $('#newPassword').val());
-    formData.append('confirm_password', $('#confirmPassword').val());
 
-    fetch('/profile/', {
+    // Смена пароля
+    $('#savePasswordBtn').click(function() {
+      const formData = new FormData();
+      formData.append('type', 'change_password');
+      formData.append('current_password', $('#currentPassword').val());
+      formData.append('new_password', $('#newPassword').val());
+      formData.append('confirm_password', $('#confirmPassword').val());
+
+      fetch('/profile/', {
         method: 'POST',
         body: formData
-    })
-    .then(r => r.json())
-    .then(data => {
+      })
+      .then(r => r.json())
+      .then(data => {
         if (data.success) {
-            $('#passwordModal').modal('hide');
-            alert('Пароль изменен!');
+          $('#passwordModal').modal('hide');
+          alert('Пароль изменен!');
         } else {
-            handleErrors(data.errors);
+          handleErrors(data.errors);
         }
+      });
     });
-});
 
-
-
-// Удаление аккаунта
-$('#confirmDeleteBtn').click(function() {
-    fetch('/profile/', {
+    // Удаление аккаунта
+    $('#confirmDeleteBtn').click(function() {
+      fetch('/profile/', {
         method: 'POST',
         body: new FormData().append('type', 'delete_account')
-    })
-    .then(r => r.json())
-    .then(data => {
+      })
+      .then(r => r.json())
+      .then(data => {
         if (data.redirect) {
-            window.location.href = data.redirect;
+          window.location.href = data.redirect;
         }
+      });
     });
-});
 
-function handleErrors(errors) {
-    Object.entries(errors).forEach(([field, messages]) => {
+    function handleErrors(errors) {
+      Object.entries(errors).forEach(([field, messages]) => {
         $(`#${field}`).addClass('is-invalid').next('.invalid-feedback').text(messages[0]);
-    });
-}
-    // Здесь должна быть логика отправки данных на сервер
-      //При добавлении отправки формы с помощью fetch, используя метод POST (Защиту от CSRF можно не реализовывать)
-  //Собрать поля формы в const formData = new FormData();
-  //Например formData.append('<Имя поля>', <имя формы в коде>.<имя поля в html>.value);
-  //Передавать параметры формы с именами и дополнительный параметр следующего вида:
-  // formData.append('type', 'deposit')  при регистрации
-  // 
+      });
+    }
 
-  /*
-    полный список параметров, ожидаемый на бекенде при пополенении:
-    
-    'type' значение 'deposit'
-    'card_num' номер карты
-    'date' дата (MM-YY)
-    'cvv' cvv
-    'summ' сумма пополнения
-  */
-
-  //Словарь ошибок errors вернётся с такими же названиями полей в качестве ключей
-  //значениями будут строки, которые нужно выводить у соответсвующих полей
-
-  /*
-    Список параметров, ожидаемый на бекенде при внесении изменений в профиль:
-
-    'type' с возможными значениями: 'update_profile', 'change_password', 'change_email', 'delete_account', 'logout'
-    
-    Далее список ожидаемых параметров в зависимости от типа формы
-    **********************
-    'update_profile'
-
-    'fname'
-    'lname'
-    'gender'
-    'dob'
-    ***********************
-    'change_password'
-
-    'current_password' <- нужно добавить поле
-    'new_password'
-    confirm_password'  <- нужно добавить поле
-    ***********************
-    'change_email'
-
-    'new_email'
-    ***********************
-    У 'delete_account' и 'logout' только 'type'
-    
-  */
-
-  
     alert('Баланс успешно пополнен');
     this.reset();
   });
 
   // Обработка подтверждения выхода из аккаунта
   $('#confirmLogoutBtn').on('click', function() {
-    localStorage.removeItem('user');
+    localStorage.removeItem('userData');
     localStorage.removeItem('userBalance'); // Очищаем баланс при выходе
-    window.location.href = 'auth.html';
+    window.location.href = '/auth/';
   });
 
   // Обработка подтверждения удаления аккаунта
   $('#confirmDeleteBtn').on('click', function() {
-    localStorage.removeItem('user');
+    localStorage.removeItem('userData');
     localStorage.removeItem('userBalance'); // Очищаем баланс при удалении
-    window.location.href = 'auth.html';
+    window.location.href = '/auth/';
   });
 
   // Обработка изменения пароля
