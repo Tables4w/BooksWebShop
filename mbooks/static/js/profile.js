@@ -8,6 +8,30 @@ $(document).ready(function() {
     return;
   }
 
+  // Проверяем существование кнопки выхода
+  const logoutBtn = $('#confirmLogoutBtn');
+  console.log('Logout button found:', logoutBtn.length > 0); // Debug log
+
+  if (logoutBtn.length > 0) {
+    logoutBtn.on('click', function(e) {
+      console.log('Logout button clicked'); // Debug log
+      e.preventDefault();
+      e.stopPropagation();
+      alert('Logout button clicked'); // Debug alert
+      try {
+        // Очищаем все данные пользователя из localStorage
+        localStorage.clear(); // Очищаем все данные из localStorage
+        alert('LocalStorage cleared'); // Debug alert
+        // Перенаправляем на страницу входа
+        window.location.href = '/auth/';
+      } catch (error) {
+        alert('Error during logout: ' + error.message); // Debug alert
+      }
+    });
+  } else {
+    console.error('Logout button not found in DOM'); // Debug log
+  }
+
   // Заполняем поля профиля данными пользователя
   $('#profile-username').text(userData.username);
   $('#profile-email').text(userData.email);
@@ -46,29 +70,6 @@ $(document).ready(function() {
     }
   });
   */
-
-  // Обработка кнопки выхода
-  $('#logout-btn').click(function(e) {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append('type', 'logout');
-
-    fetch('/profile/', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.redirect) {
-        localStorage.removeItem('userData');
-        window.location.href = data.redirect;
-      }
-    })
-    .catch(error => {
-      console.error('Ошибка при выходе:', error);
-      alert('Произошла ошибка при попытке выхода');
-    });
-  });
 
   // Инициализация баланса
   let currentBalance = parseInt(localStorage.getItem('userBalance')) || 0;
@@ -166,6 +167,45 @@ $(document).ready(function() {
     }
   });
 
+  // Обработка отправки формы пополнения баланса
+  $('#balanceForm').on('submit', function(e) {
+    e.preventDefault();
+    console.log('Form submitted'); // Debug log
+    
+    // Получаем значения полей по placeholder
+    const cardNum = $('#balanceForm input[placeholder="0000 0000 0000 0000"]').val();
+    const date = $('#balanceForm input[placeholder="ММ/ГГ"]').val();
+    const cvv = $('#balanceForm input[placeholder="000"]').val();
+    const sum = parseInt($('#balanceForm input[type="number"]').val());
+
+    console.log('Form data:', { cardNum, date, cvv, sum }); // Debug log
+
+    // Валидация
+    if (!cardNum || !date || !cvv || !sum) {
+      alert('Пожалуйста, заполните все поля');
+      return;
+    }
+
+    if (cardNum.replace(/\s/g, '').length !== 16) {
+      alert('Номер карты должен содержать 16 цифр');
+      return;
+    }
+
+    if (sum <= 0) {
+      alert('Сумма пополнения должна быть больше 0');
+      return;
+    }
+
+    // Обновляем баланс
+    currentBalance += sum;
+    localStorage.setItem('userBalance', currentBalance);
+    updateBalanceDisplay();
+    
+    // Очищаем форму
+    this.reset();
+    alert('Баланс успешно пополнен');
+  });
+
   // Форматирование номера карты
   $('#balanceForm input[placeholder="0000 0000 0000 0000"]').on('input', function() {
     let value = $(this).val().replace(/\D/g, '');
@@ -183,7 +223,7 @@ $(document).ready(function() {
   $('#balanceForm input[placeholder="ММ/ГГ"]').on('input', function() {
     let value = $(this).val().replace(/\D/g, '');
     if(value.length > 2) {
-      value = value.substring(0, 2) + '-' + value.substring(2, 4);
+      value = value.substring(0, 2) + '/' + value.substring(2, 4);
     }
     $(this).val(value);
   });
@@ -191,39 +231,6 @@ $(document).ready(function() {
   // Только цифры для CVV
   $('#balanceForm input[placeholder="000"]').on('input', function() {
     $(this).val($(this).val().replace(/\D/g, ''));
-  });
-
-  // Обработка отправки формы пополнения баланса
-  $('#balanceForm').on('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData();
-    formData.append('type', 'deposit');
-    formData.append('card_num', $('#balanceForm input[placeholder="0000 0000 0000 0000"]').val().replace(/\s/g, ''));
-    formData.append('date', $('#balanceForm input[placeholder="ММ/ГГ"]').val());
-    formData.append('cvv', $('#balanceForm input[placeholder="000"]').val());
-    formData.append('sum', $('#balanceForm input[type="number"]').val());
-
-    fetch('/profile/', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        currentBalance += parseInt(formData.get('sum'));
-        localStorage.setItem('userBalance', currentBalance);
-        updateBalanceDisplay();
-        alert('Баланс успешно пополнен');
-        this.reset();
-      } else {
-        handleErrors(data.errors);
-      }
-    })
-    .catch(error => {
-      console.error('Ошибка при пополнении баланса:', error);
-      alert('Произошла ошибка при пополнении баланса');
-    });
   });
 
   // Обновление профиля
@@ -316,26 +323,19 @@ $(document).ready(function() {
   });
 
   // Удаление аккаунта
-  $('#confirmDeleteBtn').click(function() {
-    const formData = new FormData();
-    formData.append('type', 'delete_account');
-
-    fetch('/profile/', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.redirect) {
-        localStorage.removeItem('userData');
-        localStorage.removeItem('userBalance');
-        window.location.href = data.redirect;
-      }
-    })
-    .catch(error => {
-      console.error('Ошибка при удалении аккаунта:', error);
-      alert('Произошла ошибка при удалении аккаунта');
-    });
+  $('#confirmDeleteBtn').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    alert('Delete button clicked'); // Debug alert
+    try {
+      // Очищаем все данные пользователя из localStorage
+      localStorage.clear(); // Очищаем все данные из localStorage
+      alert('LocalStorage cleared'); // Debug alert
+      // Перенаправляем на страницу входа
+      window.location.href = '/auth/';
+    } catch (error) {
+      alert('Error during account deletion: ' + error.message); // Debug alert
+    }
   });
 
   // Функция обработки ошибок
