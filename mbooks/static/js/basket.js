@@ -186,7 +186,7 @@ $('#checkout-btn').click(function() {
 
   if (balance < total) {
     alert('Недостаточно средств. Пожалуйста, пополните баланс.');
-    window.location.href = 'profile.html';
+    window.location.href = '/profile/';
     return;
   }
   
@@ -219,5 +219,5 @@ $('#checkout-btn').click(function() {
   loadCart();
   updateBalanceDisplay();
   alert('Заказ успешно оформлен!');
-  window.location.href = 'profile.html?section=orders'; // Перенаправляем на страницу заказов
+  window.location.href = '/profile/'; // Перенаправляем на страницу профиля
 }); 

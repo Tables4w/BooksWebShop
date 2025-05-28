@@ -28,7 +28,7 @@
     <!-- Логотип и кнопка мобильного меню -->
     <div class="d-flex align-items-center">
       <div class="logo me-3">
-        <img src="files/header/logo.png" alt="Moore Books">  
+        <img src="{% static 'files/header/logo.png' %}" alt="Moore Books">  
       </div>
       
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -58,7 +58,7 @@
       <!-- Иконки корзины и пользователя -->
     <ul class="navbar-nav align-items-center">
         <li class="nav-item position-relative d-flex align-items-center">
-          <a class="nav-link d-flex align-items-center" href="basket.html">
+          <a class="nav-link d-flex align-items-center" href="/basket/">
             <i class="bi bi-cart" style="font-size:  1.78rem;"></i>
             <span id="cart-total" class="ms-2 badge rounded-pill bg-danger" style="font-size: 1rem; position: static; transform: none;">0 ₽</span>
           </a>
@@ -66,7 +66,7 @@
  <li class="nav-item ms-1">
     <a class="nav-link p-0 d-flex align-items-center justify-content-center" href="/auth/" title="Войти"
 	style="width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease;">
-      <img src="files/header/user.png" alt="Войти" style="width: auto; height: auto; object-fit: cover;">
+      <img src="{% static 'files/header/user.png' %}" alt="Войти" style="width: auto; height: auto; object-fit: cover;">
     </a>
   </li>   
       </ul>
@@ -78,7 +78,7 @@
 <main class="container my-5">
   <div class="row">
     <div class="col-md-4">
-      <img id="book-image" src="files/bestsellers/1.png" alt="Обложка книги" class="img-fluid rounded shadow" />
+      <img id="book-image" src="{% static 'files/bestsellers/1.png' %}" alt="Обложка книги" class="img-fluid rounded shadow" />
     </div>
     <div class="col-md-8">
       <div class="card p-4 mb-4">
@@ -115,22 +115,22 @@
       <div class="col-md-3 order-2 order-md-3 mt-3 mt-md-0">
         <h3>Контакты</h3>
         <div class="contact-row d-flex align-items-center mb-2">
-          <img class="footer-icon" src="files/footer/mail.png" alt="Email">
+          <img class="footer-icon" src="{% static 'files/footer/mail.png' %}" alt="Email">
           <span> support@moorebooks.ru</span>
         </div>
         <div class="contact-row d-flex align-items-center mb-2">
-          <img class="footer-icon" src="files/footer/location.png" alt="Location">
+          <img class="footer-icon" src="{% static 'files/footer/location.png' %}" alt="Location">
           <span> Ставропольская 219</span>
         </div>
         <div class="contact-row d-flex align-items-center mb-2">
-          <img class="footer-icon" src="files/footer/phone.png" alt="Phone">
+          <img class="footer-icon" src="{% static 'files/footer/phone.png' %}" alt="Phone">
           <span> +7 (900) 123-45-67</span>
         </div>
       </div>
 
     <div class="col-md-2 order-last order-md-1 g-0">
   <div class="logo">
-    <img src="files/footer/logo.png" alt="Moore Books" style="max-height: 170px; width: auto;" class="img-fluid">
+    <img src="{% static 'files/footer/logo.png' %}" alt="Moore Books" style="max-height: 170px; width: auto;" class="img-fluid">
   </div>
 </div>
     </div>

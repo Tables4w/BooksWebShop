@@ -1,0 +1,3 @@
+# ... existing settings ...
+
+# Remove JWT settings 

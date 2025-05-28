@@ -40,7 +40,7 @@ def serializeBooks(books: list) -> list:
     return final_list
 
 # Количество книг в обоих каруселях
-# (4, как и в script.js, если я правильно понял)
+# (4 книги для корректной работы карусели)
 ITEMS_IN_CAROUSEL: int = 4
 
 def mainpage_back(request):

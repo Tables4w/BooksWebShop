@@ -1,58 +1,102 @@
 $(document).ready(function() {
-  const $loginForm = $('#login-form');
-  const $registerForm = $('#register-form');
-  const $toggle = $('#toggle-auth');
-  const $title = $('#auth-title');
-  const $welcomeText = $('#welcome-text');
-  const $registerText = $('#register-text');
-
-  $toggle.on('click', function(e) {
-    e.preventDefault();
-    if ($loginForm.is(':visible')) {
-      $loginForm.hide();
-      $registerForm.show();
-      $title.text('Регистрация');
-      $toggle.text('Войти');
-       $welcomeText.hide();
-      $registerText.show();
-    } else {
-      $registerForm.hide();
-      $loginForm.show();
-      $title.text('Вход');
-      $toggle.text('Зарегистрироваться');
-       $registerText.hide();
-      $welcomeText.show();
+    // Проверяем, авторизован ли пользователь
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (userData) {
+        window.location.href = '/profile/';
+        return;
     }
-  });
 
-  //При добавлении отправки формы с помощью fetch, используя метод POST (Защиту от CSRF можно не реализовывать)
-  //Собрать поля формы в const formData = new FormData();
-  //Например formData.append('<Имя поля>', <имя формы в коде>.<имя поля в html>.value);
-  //Передавать параметры формы с именами и дополнительный параметр следующего вида:
-  // formData.append('type', 'reg')  при регистрации
-  // formData.append('type', 'login') при входе
+    // Переключение между формами входа и регистрации
+    $('#toggle-auth').click(function(e) {
+        e.preventDefault();
+        const loginForm = $('#login-form');
+        const registerForm = $('#register-form');
+        const authTitle = $('#auth-title');
+        const registerText = $('#register-text');
+        const welcomeText = $('#welcome-text');
+        const toggleLink = $(this);
 
-  /*
-    полный список параметров, ожидаемый на бекенде:
-    Регистрация:
-    'type'
-    'login'
-    'password'
-    'gender'
-    'fname'
-    'lname'
-    'email'
-    'dob'
+        if (loginForm.is(':visible')) {
+            loginForm.hide();
+            registerForm.show();
+            authTitle.text('Регистрация');
+            registerText.show();
+            welcomeText.hide();
+            toggleLink.text('Войти');
+        } else {
+            loginForm.show();
+            registerForm.hide();
+            authTitle.text('Вход');
+            registerText.hide();
+            welcomeText.show();
+            toggleLink.text('Зарегистрироваться');
+        }
+    });
 
-    Вход:
-    'type'
-    'login'
-    'password'
-  */
+    // Обработка формы входа
+    $('#login-form').submit(async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData();
+        formData.append('type', 'login');
+        formData.append('login', $('#login-email').val());
+        formData.append('password', $('#login-password').val());
 
-  //Словарь ошибок Errors вернётся с такими же названиями полей в качестве ключей
-  //значениями будут строки, которые нужно выводить у соответсвующих полей
+        try {
+            const response = await fetch('/api/auth/login/', {
+                method: 'POST',
+                body: formData
+            });
 
-  //(В форме входа у Errors может быть доп. поле 'failedlog', появляющееся, если нет пользователя/пароля), содержащее строку с сообщением об этом
-  //Соответственно, его нужно подставить для вывода ошибки
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('userData', JSON.stringify(data));
+                window.location.href = '/profile/';
+            } else {
+                alert('Неверный логин или пароль');
+            }
+        } catch (error) {
+            console.error('Ошибка при входе:', error);
+            alert('Произошла ошибка при попытке входа');
+        }
+    });
+
+    // Обработка формы регистрации
+    $('#register-form').submit(async function(e) {
+        e.preventDefault();
+
+        // Проверка совпадения паролей
+        if ($('#register-password').val() !== $('#register-password2').val()) {
+            alert('Пароли не совпадают');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('type', 'register');
+        formData.append('login', $('#register-login').val());
+        formData.append('password', $('#register-password').val());
+        formData.append('gender', $('#register-gender').val());
+        formData.append('fname', $('#register-name').val());
+        formData.append('lname', $('#register-surname').val());
+        formData.append('email', $('#register-email').val());
+        formData.append('dob', $('#register-date').val());
+
+        try {
+            const response = await fetch('/api/auth/register/', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('Регистрация успешна! Теперь вы можете войти.');
+                $('#toggle-auth').click(); // Переключаемся на форму входа
+            } else {
+                const error = await response.json();
+                alert('Ошибка регистрации: ' + (error.message || 'Проверьте введенные данные'));
+            }
+        } catch (error) {
+            console.error('Ошибка при регистрации:', error);
+            alert('Произошла ошибка при попытке регистрации');
+        }
+    });
 }); 
