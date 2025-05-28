@@ -14,7 +14,11 @@ $(document).ready(function() {
   $('#profile-first-name').text(userData.first_name);
   $('#profile-last-name').text(userData.last_name);
   $('#profile-birth-date').text(userData.birth_date);
+<<<<<<< HEAD
   $('#profile-gender').text(userData.gender === 'м' ? 'Мужской' : 'Женский');
+=======
+  $('#profile-gender').text(userData.gender === 'male' ? 'Мужской' : 'Женский');
+>>>>>>> bfc5a31cb716480983574697383b974e5bd97527
   $('#profile-phone').text(userData.phone);
   $('#profile-address').text(userData.address);
 
@@ -50,6 +54,7 @@ $(document).ready(function() {
   // Обработка кнопки выхода
   $('#logout-btn').click(function(e) {
     e.preventDefault();
+<<<<<<< HEAD
     const formData = new FormData();
     formData.append('type', 'logout');
 
@@ -68,6 +73,10 @@ $(document).ready(function() {
       console.error('Ошибка при выходе:', error);
       alert('Произошла ошибка при попытке выхода');
     });
+=======
+    localStorage.removeItem('userData');
+    window.location.href = '/auth/';
+>>>>>>> bfc5a31cb716480983574697383b974e5bd97527
   });
 
   // Инициализация баланса
@@ -226,6 +235,7 @@ $(document).ready(function() {
     });
   });
 
+<<<<<<< HEAD
   // Обновление профиля
   $('#personal-data-form').on('submit', function(e) {
     e.preventDefault();
@@ -351,6 +361,164 @@ $(document).ready(function() {
       input.next('.invalid-feedback').text(messages[0]);
     });
   }
+=======
+    if(amount <= 0) {
+      alert('Сумма пополнения должна быть больше 0');
+      return;
+    }
+
+    // Обновляем баланс
+    currentBalance += amount;
+    localStorage.setItem('userBalance', currentBalance);
+    updateBalanceDisplay();
+
+    // Обновление профиля
+    $('#personal-data-form').on('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      formData.append('type', 'update_profile');
+      
+      fetch('/profile/', {
+        method: 'POST',
+        body: formData
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          alert('Данные обновлены!');
+        } else {
+          Object.entries(data.errors).forEach(([field, messages]) => {
+            $(`#${field}`).addClass('is-invalid').next('.invalid-feedback').text(messages[0]);
+          });
+        }
+      });
+    });
+
+    // Смена email
+    $('#saveEmailBtn').on('click', function() {
+      const formData = new FormData();
+      formData.append('type', 'change_email');
+      formData.append('new_email', $('#newEmail').val());
+
+      fetch('/profile/', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include' // Для передачи кук
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Email успешно изменен!');
+          $('#emailModal').modal('hide');
+          // Обновляем email на странице
+          $('#currentEmail').val(data.new_email); 
+        } else {
+          // Вывод ошибок
+          Object.entries(data.errors).forEach(([field, messages]) => {
+            $(`#${field}`).addClass('is-invalid').next('.invalid-feedback').text(messages[0]);
+          });
+        }
+      });
+    });
+
+    // Смена пароля
+    $('#savePasswordBtn').click(function() {
+      const formData = new FormData();
+      formData.append('type', 'change_password');
+      formData.append('current_password', $('#currentPassword').val());
+      formData.append('new_password', $('#newPassword').val());
+      formData.append('confirm_password', $('#confirmPassword').val());
+
+      fetch('/profile/', {
+        method: 'POST',
+        body: formData
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          $('#passwordModal').modal('hide');
+          alert('Пароль изменен!');
+        } else {
+          handleErrors(data.errors);
+        }
+      });
+    });
+
+    // Удаление аккаунта
+    $('#confirmDeleteBtn').click(function() {
+      fetch('/profile/', {
+        method: 'POST',
+        body: new FormData().append('type', 'delete_account')
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.redirect) {
+          window.location.href = data.redirect;
+        }
+      });
+    });
+
+    function handleErrors(errors) {
+      Object.entries(errors).forEach(([field, messages]) => {
+        $(`#${field}`).addClass('is-invalid').next('.invalid-feedback').text(messages[0]);
+      });
+    }
+
+    alert('Баланс успешно пополнен');
+    this.reset();
+  });
+
+  // Обработка подтверждения выхода из аккаунта
+  $('#confirmLogoutBtn').on('click', function() {
+    localStorage.removeItem('userData');
+    localStorage.removeItem('userBalance'); // Очищаем баланс при выходе
+    window.location.href = '/auth/';
+  });
+
+  // Обработка подтверждения удаления аккаунта
+  $('#confirmDeleteBtn').on('click', function() {
+    localStorage.removeItem('userData');
+    localStorage.removeItem('userBalance'); // Очищаем баланс при удалении
+    window.location.href = '/auth/';
+  });
+
+  // Обработка изменения пароля
+  $('#savePasswordBtn').on('click', function() {
+    const currentPassword = $('#currentPassword').val();
+    const newPassword = $('#newPassword').val();
+    const confirmPassword = $('#confirmPassword').val();
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      alert('Пожалуйста, заполните все поля');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      alert('Новые пароли не совпадают');
+      return;
+    }
+
+    // Здесь должна быть логика отправки данных на сервер
+    $('#passwordModal').modal('hide');
+    $('#passwordChangeForm')[0].reset();
+    alert('Пароль успешно изменен');
+  });
+
+  // Обработка изменения email
+  $('#saveEmailBtn').on('click', function() {
+    const newEmail = $('#newEmail').val();
+
+    if (!newEmail) {
+      alert('Пожалуйста, введите новый email');
+      return;
+    }
+
+    // Здесь должна быть логика отправки данных на сервер
+    $('#emailModal').modal('hide');
+    $('#emailChangeForm')[0].reset();
+    alert('Email успешно изменен');
+  });
+>>>>>>> bfc5a31cb716480983574697383b974e5bd97527
 
   // Очистка форм при закрытии модальных окон
   $('.modal').on('hidden.bs.modal', function() {
