@@ -34,7 +34,6 @@ $(document).ready(function() {
     });
 
     // Обработка формы входа
-<<<<<<< HEAD
     $('#login-form').submit(async function(e) {
         e.preventDefault();
         
@@ -44,7 +43,7 @@ $(document).ready(function() {
         formData.append('password', $('#login-password').val());
 
         try {
-            const response = await fetch('/api/auth/login/', {
+            const response = await fetch('/auth/', {
                 method: 'POST',
                 body: formData
             });
@@ -64,38 +63,6 @@ $(document).ready(function() {
 
     // Обработка формы регистрации
     $('#register-form').submit(async function(e) {
-=======
-    $('#login-form').submit(function(e) {
-        e.preventDefault();
-        
-        const username = $('#login-email').val();
-        const password = $('#login-password').val();
-
-        // Проверка тестовых данных
-        if (username === 'test' && password === 'test123') {
-            // Сохраняем тестовые данные пользователя в localStorage
-            const userData = {
-                username: 'test',
-                email: 'test@example.com',
-                first_name: 'Тестовый',
-                last_name: 'Пользователь',
-                birth_date: '1990-01-01',
-                gender: 'male',
-                phone: '+7 (999) 123-45-67',
-                address: 'г. Москва, ул. Примерная, д. 1'
-            };
-            localStorage.setItem('userData', JSON.stringify(userData));
-            
-            alert('Успешный вход!');
-            window.location.href = '/profile/';
-        } else {
-            alert('Неверный логин или пароль');
-        }
-    });
-
-    // Обработка формы регистрации
-    $('#register-form').submit(function(e) {
->>>>>>> bfc5a31cb716480983574697383b974e5bd97527
         e.preventDefault();
 
         // Проверка совпадения паролей
@@ -104,7 +71,6 @@ $(document).ready(function() {
             return;
         }
 
-<<<<<<< HEAD
         const formData = new FormData();
         formData.append('type', 'register');
         formData.append('login', $('#register-login').val());
@@ -116,14 +82,15 @@ $(document).ready(function() {
         formData.append('dob', $('#register-date').val());
 
         try {
-            const response = await fetch('/api/auth/register/', {
+            const response = await fetch('/auth/', {
                 method: 'POST',
                 body: formData
             });
 
             if (response.ok) {
-                alert('Регистрация успешна! Теперь вы можете войти.');
-                $('#toggle-auth').click(); // Переключаемся на форму входа
+                alert('Регистрация успешна!');
+                localStorage.setItem('userData', JSON.stringify(data));
+                window.location.href = '/profile/';
             } else {
                 const error = await response.json();
                 alert('Ошибка регистрации: ' + (error.message || 'Проверьте введенные данные'));
@@ -132,41 +99,5 @@ $(document).ready(function() {
             console.error('Ошибка при регистрации:', error);
             alert('Произошла ошибка при попытке регистрации');
         }
-=======
-        const registerData = {
-            first_name: $('#register-name').val(),
-            last_name: $('#register-surname').val(),
-            birth_date: $('#register-date').val(),
-            gender: $('#register-gender').val(),
-            email: $('#register-email').val(),
-            username: $('#register-login').val(),
-            password: $('#register-password').val()
-        };
-
-        // Временная заглушка для тестирования
-        console.log('Registration attempt:', registerData);
-        alert('Регистрация успешна! Теперь вы можете войти.');
-        $('#toggle-auth').click(); // Переключаемся на форму входа
-
-        /* Закомментированный код для реальной отправки на бэкенд
-        $.ajax({
-            url: '/api/auth/register/',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(registerData),
-            success: function(response) {
-                if (response.success) {
-                    alert('Регистрация успешна! Теперь вы можете войти.');
-                    $('#toggle-auth').click();
-                } else {
-                    alert('Ошибка регистрации: ' + response.message);
-                }
-            },
-            error: function(xhr) {
-                alert('Ошибка регистрации. Пожалуйста, проверьте введенные данные.');
-            }
-        });
-        */
->>>>>>> bfc5a31cb716480983574697383b974e5bd97527
     });
 }); 

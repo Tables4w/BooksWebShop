@@ -126,10 +126,12 @@ def auth_back(request):
         try:
             formtype=request.POST.get('type')
 
-            if formtype!='reg' and formtype!='login':
+            print(formtype);
+
+            if formtype!='register' and formtype!='login':
                 raise FormTypeInvalid("Invalid Form Type")
             
-            if formtype=='reg':
+            if formtype=='register':
                 formlogin=request.POST.get('login')
                 paswd=request.POST.get('password')
                 gender=request.POST.get('gender')
@@ -153,7 +155,7 @@ def auth_back(request):
                 user=User.objects.create_user(username=formlogin, password=paswd, gender=gender, email=email,
                                               dob=dob, first_name=fname, last_name=lname, role_id=1)
                 login(request, user)
-                return redirect('profile')
+                return JsonResponse({'Success':'registered successfully'}, status=200)
             
             if formtype=='login':
                 formlogin=request.POST.get('login')
@@ -165,17 +167,18 @@ def auth_back(request):
 
                 user=authenticate(request, username=formlogin, password=paswd)
                 if user is not None:
+                    print('OK')
                     login(request, user)
-                    return redirect('profile')
+                    return JsonResponse({'Success':'logged in successfully'}, status=200)
                 else:
                     Errors['failedlog']='Неверный логин или пароль'
                     return JsonResponse(Errors, status=403)
 
         except Exception as e:
             if type(e)==FormTypeInvalid:
-                return JsonResponse({'Error': 'invalid form type'}, status=403)
+                return JsonResponse({'Error': 'invalid form type'}, status=400)
             else:
                 print(e);
-                return JsonResponse(Errors, status=403)
+                return JsonResponse(Errors, status=400)
     else:
         return JsonResponse({'Error': 'Allowed methods: GET, POST'}, status=405)

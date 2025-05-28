@@ -87,6 +87,17 @@ def validate_profile_data(errors, fname, lname, gender, dob):
         except ValidationError as e:
             errors[field] = e.messages
 
+def validate_pass(errors, paswd):
+    password_validator = RegexValidator(
+        regex=r'^[a-zA-Zа-яА-ЯёЁ0-9_]{8,100}$',
+        message='Пароль может содержать буквы, цифры и нижнее подчеркивание. Длина: 8–100 символов.'
+    )
+
+    try:
+        password_validator(paswd)
+    except ValidationError as e:
+        errors['password'] = e.messages
+
 def profile_back(request):
     if request.method == 'POST':
         errors = {}
@@ -143,6 +154,7 @@ def profile_back(request):
                     errors['current_password'] = ['Текущий пароль неверен']
                 if new_pass != confirm:
                     errors['confirm_password'] = ['Пароли не совпадают']
+                validate_pass(errors, new_pass);
                 if errors:
                     raise ValidationError("Validation error")
 
@@ -169,11 +181,11 @@ def profile_back(request):
             elif action_type == 'delete_account':
                 logout(request);
                 user.delete()
-                return redirect('auth')
+                return JsonResponse({'success': 'Аккаунт удалён'})
             
             elif action_type == 'logout':
                 logout(request)
-                return redirect('auth')
+                return JsonResponse({'success': 'Успешный выход'})
 
             else:
                 return JsonResponse({'error': 'Неизвестное действие'}, status=400)
