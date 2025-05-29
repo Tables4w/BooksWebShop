@@ -54,12 +54,14 @@ $(document).ready(function() {
       let yearOk = true;
       if (!isNaN(yearFrom)) yearOk = book.year >= yearFrom;
       if (!isNaN(yearTo)) yearOk = yearOk && book.year <= yearTo;
+      /*
       let searchOk = true;
       if (search) {
         searchOk = (book.title && book.title.toLowerCase().includes(search)) ||
                    (book.author && book.author.toLowerCase().includes(search));
       }
-      return genreOk && authorOk && yearOk && searchOk;
+      */
+      return genreOk && authorOk && yearOk; //&& searchOk;
     });
   }
 
@@ -92,48 +94,39 @@ $(document).ready(function() {
   // --- Добавление книги в корзину ---
   function addToCart(bookId) {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let selectedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
     const book = books.find(b => b.id === bookId);
     if (book) {
-      cart.push({
-        id: book.id,
-        title: book.title,
-        price: book.price,
-        image: book.image
-      });
-      localStorage.setItem('cart', JSON.stringify(cart));
-      updateCartTotal();
+      const existingItem = cart.find(item => item.id === bookId);
 
-      // Проверяем, авторизован ли пользователь
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      if (userData) {
-        // Отправляем ID книги на бэкенд
-        const formData = new FormData();
-        formData.append('book_id', bookId);
-
-        fetch('/addtocart/', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Ответ сервера:', data);
-          if (!response.ok) {
-            alert('Ошибка при добавлении книги в корзину: ' + (data.message || 'Неизвестная ошибка'));
-          }
-        })
-        .catch(error => {
-          console.error('Ошибка при добавлении книги в корзину:', error);
-          alert('Ошибка при добавлении книги в корзину: ' + error.message);
+      if (existingItem) {
+        existingItem.quantity = (existingItem.quantity || 1) + 1;
+      } else {
+        cart.push({
+          id: bookId,
+          title: book.title,
+          price: book.price,
+          author: book.author,
+          image: book.image,
+          quantity: 1
         });
+        selectedItems.push(cart.length - 1);
       }
+      
+      localStorage.setItem('cart', JSON.stringify(cart));
+      localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
+      updateCartTotal();
     }
   }
 
   // --- Обновление суммы в корзине ---
   function updateCartTotal() {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const total = cart.reduce((sum, item) => sum + parseFloat(item.price), 0);
-    $('#cart-total').text(parseFloat(total).toFixed(2) + ' ₽');
+    const total = cart.reduce((sum, item) => {
+      const qty = item.quantity || 1;
+      return sum + parseInt(item.price) * qty;
+    }, 0);
+    $('#cart-total').text(total + ' ₽');
   }
 
   // --- События фильтров и поиска ---
@@ -143,9 +136,11 @@ $(document).ready(function() {
   $(document).on('input', '#year-from, #year-to', function() {
     renderBooks(filterBooks());
   });
+  /*
   $(document).on('input', "input[type='search']", function() {
     renderBooks(filterBooks());
   });
+  */
 
   // --- Обработчик кнопки "Купить" ---
   $(document).on('click', '.buy-btn', function(e) {

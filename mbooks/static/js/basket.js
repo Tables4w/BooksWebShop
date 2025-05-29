@@ -108,7 +108,6 @@ function loadCart() {
   });
 
   updateTotalPrice();
-  updateBalanceAfterPurchase();
 }
 
 function updateQuantity(index, change) {
@@ -132,7 +131,7 @@ function removeFromCart(index) {
   localStorage.setItem('cart', JSON.stringify(cart));
   localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
   loadCart();
-  updateCartTotal();
+  updateTotalPrice();
 }
 
 function updateTotalPrice() {
@@ -193,17 +192,35 @@ $('#checkout-btn').click(function() {
   // Создаем новый заказ
   const newOrder = {
     date: new Date().toISOString(),
-    status: 'current',
+    status: 'Оформлен',
+    total: total,
     items: selectedItems.map(item => ({
       ...item,
       quantity: item.quantity || 1
     }))
   };
 
-  // Сохраняем заказ в историю
-  const orders = JSON.parse(localStorage.getItem('userOrders')) || [];
-  orders.unshift(newOrder); // Добавляем новый заказ в начало массива
-  localStorage.setItem('userOrders', JSON.stringify(orders));
+  fetch('/basket/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(newOrder)
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Ошибка при отправке заказа');
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Заказ успешно отправлен:', data);
+    // Очистить корзину, показать уведомление, перенаправить и т.п.
+  })
+  .catch(error => {
+    console.error('Ошибка:', error);
+    // Показать ошибку пользователю
+  });
   
   // Обновляем баланс
   const newBalance = balance - total;
@@ -218,6 +235,5 @@ $('#checkout-btn').click(function() {
   localStorage.setItem('selectedItems', JSON.stringify([]));
   loadCart();
   updateBalanceDisplay();
-  alert('Заказ успешно оформлен!');
   window.location.href = '/profile/'; // Перенаправляем на страницу профиля
 }); 

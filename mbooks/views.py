@@ -5,6 +5,7 @@ from .scripts.profile import *
 from .scripts.catalog import *
 from .scripts.book import *
 from .scripts.basket import *
+from .scripts.getuserorders import *
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 
@@ -33,3 +34,8 @@ def book_view(request, id):
 @csrf_exempt
 def basket_view(request):
     return basket_back(request)
+
+login_required(login_url='/auth/')
+@csrf_exempt
+def getuserorders_view(request):
+    return getuserorders_back(request)

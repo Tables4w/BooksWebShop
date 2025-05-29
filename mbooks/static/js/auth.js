@@ -61,9 +61,11 @@ $(document).ready(function() {
         formData.append('password', $('#login-password').val());
 
         // Отладочная информация
+        /*
         alert('Отправка формы входа:\n' + 
               'Логин: ' + $('#login-email').val() + '\n' +
               'Пароль: ' + $('#login-password').val());
+        */
 
         try {
             const response = await fetch('/auth/', {
@@ -72,7 +74,7 @@ $(document).ready(function() {
             });
 
             const data = await response.json();
-            alert('Ответ сервера: ' + JSON.stringify(data, null, 2));
+            //alert('Ответ сервера: ' + JSON.stringify(data, null, 2));
 
             if (response.ok) {
                 localStorage.setItem('userData', JSON.stringify(data));
@@ -117,6 +119,7 @@ $(document).ready(function() {
         formData.append('dob', $('#register-date').val());
 
         // Отладочная информация
+        /*
         alert('Отправка формы регистрации:\n' + 
               'Логин: ' + $('#register-login').val() + '\n' +
               'Email: ' + $('#register-email').val() + '\n' +
@@ -124,6 +127,7 @@ $(document).ready(function() {
               'Фамилия: ' + $('#register-surname').val() + '\n' +
               'Пол: ' + $('#register-gender').val() + '\n' +
               'Дата рождения: ' + $('#register-date').val());
+        */
 
         try {
             const response = await fetch('/auth/', {
@@ -132,10 +136,10 @@ $(document).ready(function() {
             });
 
             const data = await response.json();
-            alert('Ответ сервера: ' + JSON.stringify(data, null, 2));
+            //alert('Ответ сервера: ' + JSON.stringify(data, null, 2));
 
             if (response.ok) {
-                alert('Регистрация успешна!');
+                //alert('Регистрация успешна!');
                 localStorage.setItem('userData', JSON.stringify(data));
                 window.location.href = '/profile/';
             } else {
@@ -166,4 +170,19 @@ $(document).ready(function() {
         $(this).removeClass('is-invalid');
         $(this).next('.invalid-feedback').remove();
     });
+
+    //Вывод цены из корзины
+    function updateCartTotal() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const selectedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
+        const total = cart.reduce((sum, item, index) => {
+            if (selectedItems.includes(index)) {
+            return sum + parseInt(item.price) * (item.quantity || 1);
+            }
+            return sum;
+        }, 0);
+        $('#cart-total').text(parseInt(total) + ' ₽');
+    }
+
+    updateCartTotal();
 }); 

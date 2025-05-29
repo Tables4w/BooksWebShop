@@ -28,7 +28,7 @@ class Book(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False)
     description = models.TextField(blank=True, null=True)
     publication_date = models.DateField(null=False)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.PositiveIntegerField()
     cover = models.BinaryField()
     sold = models.PositiveIntegerField()
 
@@ -70,13 +70,6 @@ class BookPublisher(models.Model):
 
     class Meta:
         unique_together = ["book", "publisher"]
-
-class Cart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ["user", "book"]
 
 class OrderStatus(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False)

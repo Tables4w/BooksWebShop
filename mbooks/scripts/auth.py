@@ -176,7 +176,7 @@ def auth_back(request):
 
         except Exception as e:
             if type(e)==FormTypeInvalid:
-                return JsonResponse({'Error': 'invalid form type'}, status=400)
+                return JsonResponse({'errors': 'invalid form type'}, status=400)
             else:
                 print(e);
                 return JsonResponse(Errors, status=400)

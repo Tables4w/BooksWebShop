@@ -14,14 +14,16 @@ $(document).ready(function() {
 
   if (logoutBtn.length > 0) {
     logoutBtn.on('click', function(e) {
-      console.log('Logout button clicked'); // Debug log
+      //console.log('Logout button clicked'); // Debug log
       e.preventDefault();
       e.stopPropagation();
-      alert('Logout button clicked'); // Debug alert
+      //alert('Logout button clicked'); // Debug alert
       try {
         // Очищаем все данные пользователя из localStorage
-        localStorage.clear(); // Очищаем все данные из localStorage
-        alert('LocalStorage cleared'); // Debug alert
+        //localStorage.clear(); // Очищаем все данные из localStorage
+        localStorage.removeItem('userData');
+        localStorage.removeItem('userBalance');
+        //alert('LocalStorage cleared'); // Debug alert
         // Перенаправляем на страницу входа
         window.location.href = '/auth/';
       } catch (error) {
@@ -72,6 +74,8 @@ $(document).ready(function() {
   */
 
   // Инициализация баланса
+  let balance = parseFloat($('#user-balance').val());
+  localStorage.setItem('userBalance', balance)
   let currentBalance = parseInt(localStorage.getItem('userBalance')) || 0;
   updateBalanceDisplay();
   loadOrders();
@@ -80,38 +84,51 @@ $(document).ready(function() {
     $('.profile-section h3.mb-0').text(currentBalance.toLocaleString() + ' ₽');
   }
 
-  // Загрузка заказов
+  //Pагрузка заказов из бд
   function loadOrders() {
-    const orders = JSON.parse(localStorage.getItem('userOrders')) || [];
-    const currentOrdersList = $('#current-orders-list');
-    const completedOrdersList = $('#completed-orders-list');
-    
-    currentOrdersList.empty();
-    completedOrdersList.empty();
+  const currentOrdersList = $('#current-orders-list');
+  const completedOrdersList = $('#completed-orders-list');
 
-    if (orders.length === 0) {
-      currentOrdersList.html('<div class="alert alert-info">У вас пока нет текущих заказов.</div>');
-      completedOrdersList.html('<div class="alert alert-info">У вас пока нет завершенных заказов.</div>');
-      return;
-    }
+  currentOrdersList.empty();
+  completedOrdersList.empty();
 
-    orders.forEach((order, index) => {
-      const orderHtml = createOrderCard(order, index);
-      if (order.status === 'completed') {
-        completedOrdersList.append(orderHtml);
-      } else {
-        currentOrdersList.append(orderHtml);
+  fetch('/getuserorders/')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Ошибка при получении заказов');
       }
-    });
+      return response.json();
+    })
+    .then(orders => {
+      if (orders.length === 0) {
+        currentOrdersList.html('<div class="alert alert-info">У вас пока нет текущих заказов.</div>');
+        completedOrdersList.html('<div class="alert alert-info">У вас пока нет завершенных заказов.</div>');
+        return;
+      }
 
-    // Если нет заказов в какой-либо категории, показываем сообщение
-    if (currentOrdersList.children().length === 0) {
-      currentOrdersList.html('<div class="alert alert-info">У вас пока нет текущих заказов.</div>');
-    }
-    if (completedOrdersList.children().length === 0) {
-      completedOrdersList.html('<div class="alert alert-info">У вас пока нет завершенных заказов.</div>');
-    }
-  }
+      orders.forEach((order, index) => {
+        const orderHtml = createOrderCard(order, order.id);
+        console.log(order.status);
+        if (order.status === 'Оформлен' || order.status==='Готов к получению') {
+          currentOrdersList.append(orderHtml);
+        } else if(order.status === 'Получен' || order.status==='Отказ') {
+          completedOrdersList.append(orderHtml);
+        }
+      });
+
+      if (currentOrdersList.children().length === 0) {
+        currentOrdersList.html('<div class="alert alert-info">У вас пока нет текущих заказов.</div>');
+      }
+      if (completedOrdersList.children().length === 0) {
+        completedOrdersList.html('<div class="alert alert-info">У вас пока нет завершенных заказов.</div>');
+      }
+    })
+    .catch(error => {
+      console.error('Ошибка загрузки заказов:', error);
+      currentOrdersList.html('<div class="alert alert-danger">Не удалось загрузить заказы.</div>');
+      completedOrdersList.html('<div class="alert alert-danger">Не удалось загрузить заказы.</div>');
+    });
+}
 
   // Создание карточки заказа
   function createOrderCard(order, index) {
@@ -122,11 +139,11 @@ $(document).ready(function() {
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <div>
-            <h5 class="mb-0">Заказ #${index + 1}</h5>
+            <h5 class="mb-0">Заказ #${index}</h5>
             <small class="text-muted">Дата: ${orderDate}</small>
           </div>
           <span class="badge ${order.status === 'completed' ? 'bg-success' : 'bg-primary'}">
-            ${order.status === 'completed' ? 'Завершен' : 'В обработке'}
+            ${order.status}
           </span>
         </div>
         <div class="card-body">
@@ -196,14 +213,39 @@ $(document).ready(function() {
       return;
     }
 
+    const formData = new FormData();
+    formData.append('type', 'deposit');
+    formData.append('cardNum', cardNum);
+    formData.append('date', date);
+    formData.append('cvv', cvv);
+    formData.append('summ', sum);
+
+    fetch('/profile/', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        currentBalance += sum;
+        localStorage.setItem('userBalance', currentBalance);
+        updateBalanceDisplay();
+        this.reset();
+        alert('Баланс успешно пополнен');
+        } else {
+        handleErrors(data.errors);
+      }
+    })
+    .catch(error => {
+      console.error('Ошибка при пополнении', error);
+      alert('Произошла ошибка при пополнении');
+    });
+
     // Обновляем баланс
-    currentBalance += sum;
-    localStorage.setItem('userBalance', currentBalance);
-    updateBalanceDisplay();
+    
     
     // Очищаем форму
-    this.reset();
-    alert('Баланс успешно пополнен');
+    
   });
 
   // Форматирование номера карты
@@ -329,8 +371,10 @@ $(document).ready(function() {
     alert('Delete button clicked'); // Debug alert
     try {
       // Очищаем все данные пользователя из localStorage
-      localStorage.clear(); // Очищаем все данные из localStorage
-      alert('LocalStorage cleared'); // Debug alert
+      //localStorage.clear(); // Очищаем все данные из localStorage
+      localStorage.removeItem('userData');
+      localStorage.removeItem('userBalance');
+      //alert('LocalStorage cleared'); // Debug alert
       // Перенаправляем на страницу входа
       window.location.href = '/auth/';
     } catch (error) {
@@ -349,6 +393,7 @@ $(document).ready(function() {
       const input = $(`[name="${field}"]`);
       input.addClass('is-invalid');
       input.next('.invalid-feedback').text(messages[0]);
+      alert(field+" "+messages);
     });
   }
 
@@ -358,4 +403,19 @@ $(document).ready(function() {
     $(this).find('.is-invalid').removeClass('is-invalid');
     $(this).find('.invalid-feedback').text('');
   });
+
+  //Вывод цены из корзины
+    function updateCartTotal() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const selectedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
+      const total = cart.reduce((sum, item, index) => {
+        if (selectedItems.includes(index)) {
+          return sum + parseInt(item.price) * (item.quantity || 1);
+        }
+        return sum;
+      }, 0);
+      $('#cart-total').text(parseInt(total) + ' ₽');
+    }
+
+    updateCartTotal();
 }); 

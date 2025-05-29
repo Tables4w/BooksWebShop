@@ -6,46 +6,29 @@ function addToCart(bookId, title, price) {
   let cart = JSON.parse(localStorage.getItem('cart')) || [];
   let selectedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
   
-  // Находим книгу в объединенном массиве
+  //Находим книгу в объединённом массиве
   const book = allBooks.find(b => b.id === bookId);
-  
+
   if (book) {
-    cart.push({ 
-      id: bookId, 
-      title: title, 
-      price: price,
-      author: book.author,
-      image: book.image 
-    });
-    selectedItems.push(cart.length - 1);
-    
+    const existingItem = cart.find(item => item.id === bookId);
+
+    if (existingItem) {
+      existingItem.quantity = (existingItem.quantity || 1) + 1;
+    } else {
+      cart.push({
+        id: bookId,
+        title: title,
+        price: price,
+        author: book.author,
+        image: book.image,
+        quantity: 1
+      });
+      selectedItems.push(cart.length - 1);
+    }
+
     localStorage.setItem('cart', JSON.stringify(cart));
     localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
     updateCartTotal();
-
-    // Проверяем, авторизован ли пользователь
-    const userData = JSON.parse(localStorage.getItem('userData'));
-    if (userData) {
-      // Отправляем ID книги на бэкенд
-      const formData = new FormData();
-      formData.append('book_id', bookId);
-
-      fetch('/addtocart/', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Ответ сервера:', data);
-        if (!response.ok) {
-          alert('Ошибка при добавлении книги в корзину: ' + (data.message || 'Неизвестная ошибка'));
-        }
-      })
-      .catch(error => {
-        console.error('Ошибка при добавлении книги в корзину:', error);
-        alert('Ошибка при добавлении книги в корзину: ' + error.message);
-      });
-    }
   }
 }
 
@@ -71,11 +54,11 @@ function updateCartTotal() {
   const selectedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
   const total = cart.reduce((sum, item, index) => {
     if (selectedItems.includes(index)) {
-      return sum + parseFloat(item.price);
+      return sum + parseInt(item.price) * (item.quantity || 1);
     }
     return sum;
   }, 0);
-  $('#cart-total').text(parseFloat(total).toFixed(2) + ' ₽');
+  $('#cart-total').text(parseInt(total) + ' ₽');
 }
 
 // Инициализация карусели и добавление книг

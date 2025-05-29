@@ -17,12 +17,12 @@ User=get_user_model()
 #Валидация данных карты и суммы пополнения
 def deposit_info_validate(errors, card_num, date, cvv, summ):
     card_num_validate = RegexValidator(
-        regex=r'^[0-9]{16}$',
+        regex=r'^[0-9]{4}\s[0-9]{4}\s[0-9]{4}\s[0-9]{4}$',
         message='Номер карты может содержать только цифры, длина номера карты 16 символов'
     )
     
     date_validate = RegexValidator(
-        regex=r'^\d{2}-\d{2}$',
+        regex=r'^\d{2}/\d{2}$',
         message='Введите дату в формате MM-YY.'
     )
     
@@ -108,10 +108,11 @@ def profile_back(request):
             #Если тип формы депозит выполняется пополнение    
             if action_type=='deposit':
 
-                card_num=request.POST.get('card_num')
+                card_num=request.POST.get('cardNum')
                 date=request.POST.get('date')
                 cvv=request.POST.get('cvv')
                 summ=request.POST.get('summ')
+
                 errors={}
 
                 deposit_info_validate(errors,card_num,date,cvv,summ)
@@ -188,12 +189,12 @@ def profile_back(request):
                 return JsonResponse({'success': 'Успешный выход'})
 
             else:
-                return JsonResponse({'error': 'Неизвестное действие'}, status=400)
+                return JsonResponse({'errors': 'Неизвестное действие'}, status=400)
 
         except ValidationError:
             return JsonResponse({'errors': errors}, status=400)
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+            return JsonResponse({'errors': str(e)}, status=500)
 
     # GET запрос
     if request.method=='GET':
@@ -203,4 +204,4 @@ def profile_back(request):
         })
     
     else:
-        return JsonResponse({'Error': 'Allowed methods: GET, POST'}, status=405) ;
+        return JsonResponse({'Errors': 'Allowed methods: GET, POST'}, status=405) ;
