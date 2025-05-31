@@ -74,7 +74,8 @@
           <label for="login-password" class="form-label">Пароль</label>
           <input type="password" class="form-control" id="login-password" required>
         </div>
-        <button type="submit" class="btn btn-primary w-100">Войти</button>
+        <button type="submit" class="btn btn-primary w-100 mb-2">Войти</button>
+        <a href="/my_admin/orders/" class="btn btn-info w-100" id="admin-login-link">Войти в админ-панель</a>
       </form>
       <form id="register-form" style="display: none;">
         <div class="mb-3">
@@ -167,6 +168,78 @@
 </footer>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData();
+      formData.append('login', document.getElementById('login-email').value);
+      formData.append('password', document.getElementById('login-password').value);
+      
+      try {
+        const response = await fetch('/api/auth/login/', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Store user type in localStorage
+          localStorage.setItem('userType', data.type);
+          
+          // Redirect based on user type
+          switch(data.type) {
+            case 1: // Regular user
+              window.location.href = '/main/';
+              break;
+            case 2: // Manager
+              window.location.href = '/my_admin/catalog/';
+              break;
+            case 3: // Admin
+              window.location.href = '/my_admin/catalog/'; // Keep admin redirect to catalog for now, will handle test link separately
+              break;
+            default:
+              alert('Неизвестный тип пользователя');
+          }
+        } else {
+          alert('Ошибка входа: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Произошла ошибка при входе');
+      }
+    });
+
+    document.getElementById('toggle-auth').addEventListener('click', function(e) {
+      e.preventDefault();
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      const authTitle = document.getElementById('auth-title');
+
+      if (loginForm.style.display === 'none') {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+        authTitle.textContent = 'Регистрация';
+        document.getElementById('welcome-text').style.display = 'block';
+        document.getElementById('register-text').style.display = 'none';
+        e.target.textContent = 'Войти';
+      } else {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+        authTitle.textContent = 'Вход';
+        document.getElementById('welcome-text').style.display = 'none';
+        document.getElementById('register-text').style.display = 'block';
+        e.target.textContent = 'Зарегистрироваться';
+      }
+    });
+
+    // Add event listener for the admin login test link
+    document.getElementById('admin-login-link').addEventListener('click', function(e) {
+        localStorage.setItem('testUserType', '3');
+    });
+
+  </script>
   <script src="{% static 'js/auth.js' %}"></script>
 </body>
 </html> 

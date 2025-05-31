@@ -39,3 +39,23 @@ login_required(login_url='/auth/')
 @csrf_exempt
 def getuserorders_view(request):
     return getuserorders_back(request)
+
+@csrf_exempt
+def admin_catalog_view(request):
+    return render(request, 'mbooks/my_admin/catalog.html')
+
+@csrf_exempt
+def admin_book_view(request, id):
+    return render(request, 'mbooks/my_admin/book.html')
+
+@csrf_exempt
+def admin_add_book_view(request):
+    return render(request, 'mbooks/my_admin/add_book.html')
+
+@csrf_exempt
+def admin_edit_tags_view(request):
+    return render(request, 'mbooks/my_admin/edit_tags.html')
+
+@csrf_exempt
+def admin_orders_view(request):
+    return render(request, 'mbooks/my_admin/orders.html')
