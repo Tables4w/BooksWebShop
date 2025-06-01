@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -32,8 +33,8 @@
                 </ul>
 
                 <!-- Поисковая строка -->
-                <form class="d-flex mx-auto position-relative me-4 w-100" role="search" style="max-width: 7000px;">
-                    <input class="form-control rounded-pill px-3 w-100" type="search" placeholder="Поиск книг" aria-label="Поиск" style="width: 600px;">
+                <form class="d-flex mx-auto position-relative me-4 w-100" method="post" action="/my_admin/catalog/" role="search" style="max-width: 7000px;">
+                    <input class="form-control rounded-pill px-3 w-100" name="search" type="search" placeholder="Поиск книг" aria-label="Поиск" style="width: 600px;">
                     <button class="btn btn-search position-absolute end-0 top-0 mt-1 me-2" type="submit" style="background: none; border: none; color: #6c4ed9; font-size: 1.2rem;">
                         <i class="bi bi-search"></i>
                     </button>
@@ -48,7 +49,7 @@
                         </a>
                     </li>
                     <li class="nav-item ms-3">
-                        <a class="btn btn-outline-danger" href="/auth/">Выйти</a>
+                        <button id="admlogout" class="btn btn-outline-danger">Выйти</button>
                     </li>
                 </ul>
             </div>
@@ -145,49 +146,7 @@
     <!-- Скрипты -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      const books = [
-        {
-          id: 1,
-          title: "Тестовая книга 1",
-          author_name: "Автор 1",
-          price: "500 ₽",
-          image_url: "/static/files/books/placeholder.png"
-        },
-        {
-          id: 2,
-          title: "Тестовая книга 2",
-          author_name: "Автор 2",
-          price: "750 ₽",
-          image_url: "/static/files/books/placeholder.png"
-        }
-      ];
-
-      const booksGrid = document.getElementById('catalog-books');
-
-      function displayBooks(bookArray) {
-        booksGrid.innerHTML = ''; // Clear current books
-        bookArray.forEach(book => {
-          const bookCard = `
-            <div class="col mb-4">
-              <div class="card h-100">
-                <img src="${book.image_url}" class="card-img-top" alt="${book.title}">
-                <div class="card-body">
-                  <h5 class="card-title">${book.title}</h5>
-                  <p class="card-text">${book.author_name}</p>
-                  <p class="card-text">${book.price}</p>
-                  <a href="/my_admin/book/${book.id}/" class="btn btn-secondary">Редактировать</a>
-                </div>
-              </div>
-            </div>
-          `;
-          booksGrid.innerHTML += bookCard;
-        });
-      }
-
-      // Display the hardcoded books on page load
-      displayBooks(books);
-
-    </script>
+    <script> const books = {{ books_json|safe }}; </script>
+    <script src="{% static 'js/admin/catalog.js' %}"></script>
 </body>
 </html> 

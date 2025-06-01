@@ -26,7 +26,6 @@ def basket_back(request):
             if user.balance < total_price:
                 return JsonResponse({'error': 'Недостаточно средств на балансе'}, status=402)
 
-            # Получаем или создаём статус "Оформлен"
             status_name = data.get('status', 'Оформлен')
             status = OrderStatus.objects.get(name=status_name)
 
@@ -40,7 +39,6 @@ def basket_back(request):
                     user=user,
                     status=status,
                     price=total_price
-                    # created_at заполняется автоматически
                 )
 
                 # Создаём покупки и увеличиваем sold

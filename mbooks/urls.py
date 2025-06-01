@@ -13,5 +13,6 @@ urlpatterns = [
     path('my_admin/book/<int:id>/', views.admin_book_view, name='admin_book'),
     path('my_admin/add_book/', views.admin_add_book_view, name='admin_add_book'),
     path('my_admin/edit_tags/', views.admin_edit_tags_view, name='admin_edit_tags'),
-    path('my_admin/orders/', views.admin_orders_view, name='admin_orders')
+    path('my_admin/orders/', views.admin_orders_view, name='admin_orders'),
+    path('my_admin/logout/', views.admin_logout_view, name='admin_logout')
 ]

@@ -180,8 +180,8 @@ def profile_back(request):
                 return JsonResponse({'success': True})
 
             elif action_type == 'delete_account':
-                logout(request);
                 user.delete()
+                logout(request);
                 return JsonResponse({'success': 'Аккаунт удалён'})
             
             elif action_type == 'logout':

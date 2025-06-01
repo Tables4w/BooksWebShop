@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -33,8 +34,8 @@
       </ul>
 
       <!-- Поисковая строка -->
-      <form class="d-flex mx-auto position-relative me-4 w-100" role="search" style="max-width: 7000px;">
-        <input class="form-control rounded-pill px-3 w-100" type="search" placeholder="Поиск книг" aria-label="Поиск" style="width: 600px;">
+      <form class="d-flex mx-auto position-relative me-4 w-100" method="post" action="/my_admin/catalog/" role="search" style="max-width: 7000px;">
+        <input class="form-control rounded-pill px-3 w-100" name="search" type="search" placeholder="Поиск книг" aria-label="Поиск" style="width: 600px;">
         <button class="btn btn-search position-absolute end-0 top-0 mt-1 me-2" type="submit" style="background: none; border: none; color: #6c4ed9; font-size: 1.2rem;">
           <i class="bi bi-search"></i>
         </button>
@@ -49,7 +50,7 @@
     </a>
   </li>
   <li class="nav-item ms-3">
-    <a class="btn btn-outline-danger" href="/auth/">Выйти</a>
+    <button id="admlogout" class="btn btn-outline-danger">Выйти</button>
   </li>
       </ul>
     </div>
@@ -68,7 +69,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="bookAuthor" class="form-label">Автор</label>
-                    <select class="form-select" id="bookAuthor" name="author" required>
+                    <select class="form-select" id="bookAuthor" name="author" required multiple>
                         <option value="">Выберите автора</option>
                         <!-- Options will be added by JavaScript -->
                     </select>
@@ -78,26 +79,24 @@
                     <textarea class="form-control" id="bookDescription" name="description" rows="4" required></textarea>
                 </div>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             <label for="bookPrice" class="form-label">Цена</label>
                             <input type="number" class="form-control" id="bookPrice" name="price" step="0.01" required>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             <label for="bookYear" class="form-label">Год издания</label>
-                            <input type="number" class="form-control" id="bookYear" name="year" required>
+                            <input type="date" class="form-control" id="bookYear" name="year" required>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label for="bookPublisher" class="form-label">Издательство</label>
-                            <select class="form-select" id="bookPublisher" name="publishers" required>
-                                <!-- Options will be added by JavaScript -->
-                            </select>
-                        </div>
-                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="bookPublisher" class="form-label">Издательство</label>
+                    <select class="form-select" id="bookPublisher" name="publishers" required multiple>
+                        <!-- Options will be added by JavaScript -->
+                    </select>
                 </div>
                 <div class="mb-3">
                     <label for="bookGenre" class="form-label">Жанры</label>
@@ -109,7 +108,10 @@
             <div class="col-md-4">
                 <div class="mb-3">
                     <label for="bookCover" class="form-label">Обложка</label>
-                    <input type="file" class="form-control" id="bookCover" name="cover" accept="image/*">
+                    <div class="mb-3">
+                      <img id="oldBookCover">
+                    </div>
+                    <input type="file" class="form-control" id="bookCover" name="cover" accept="image/png, image/jpeg">
                     <img id="currentCover" class="img-fluid mt-2" style="display: none; max-height: 300px;">
                 </div>
             </div>
@@ -160,92 +162,6 @@
 <!-- Скрипты -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  // Static data for demonstration
-  const staticData = {
-    authors: ["Автор 1", "Автор 2", "Автор 3"],
-    genres: ["Жанр 1", "Жанр 2", "Жанр 3"],
-    publishers: ["Издательство 1", "Издательство 2"]
-  };
-
-  // Function to populate select options
-  function populateSelect(selectElementId, dataArray) {
-    const selectElement = document.getElementById(selectElementId);
-    // Add a default option for single select
-    if (selectElement.tagName === 'SELECT' && !selectElement.multiple) {
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.textContent = 'Выберите автора'; // or other default text
-        selectElement.appendChild(defaultOption);
-    }
-    dataArray.forEach(item => {
-      const option = document.createElement('option');
-      option.value = item;
-      option.textContent = item;
-      selectElement.appendChild(option);
-    });
-  }
-
-  // Populate the select lists on page load
-  document.addEventListener('DOMContentLoaded', () => {
-    populateSelect('bookAuthor', staticData.authors);
-    populateSelect('bookGenre', staticData.genres);
-    populateSelect('bookPublisher', staticData.publishers);
-
-    // Handle form submission
-    document.getElementById('editBookForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-
-      const formData = new FormData(this);
-      // You can add book ID to formData if needed, e.g., formData.append('book_id', bookId);
-
-      try {
-        // Replace '/api/edit-book/' with your actual backend endpoint for editing books
-        const response = await fetch('/api/edit-book/', {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          alert('Изменения сохранены!');
-          // Optionally redirect or update UI
-        } else {
-          alert('Ошибка сохранения: ' + data.message);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Произошла ошибка при сохранении изменений');
-      }
-    });
-
-    // Handle delete button click
-    document.getElementById('deleteBookBtn').addEventListener('click', async function() {
-      if (confirm('Вы уверены, что хотите удалить эту книгу?')) {
-        const bookId = 1; // Replace with actual book ID
-        try {
-          // Replace '/api/delete-book/' with your actual backend endpoint for deleting books
-          const response = await fetch(`/api/delete-book/${bookId}/`, {
-            method: 'DELETE'
-          });
-
-          const data = await response.json();
-
-          if (response.ok) {
-            alert('Книга удалена!');
-            // Redirect to admin catalog or update UI
-            window.location.href = '/my_admin/catalog/';
-          } else {
-            alert('Ошибка удаления: ' + data.message);
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          alert('Произошла ошибка при удалении книги');
-        }
-      }
-    });
-  });
-</script>
+<script src="{% static 'js/admin/book.js' %}"></script>
 </body>
 </html> 

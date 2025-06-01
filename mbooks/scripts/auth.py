@@ -167,8 +167,9 @@ def auth_back(request):
 
                 user=authenticate(request, username=formlogin, password=paswd)
                 if user is not None:
-                    print('OK')
                     login(request, user)
+                    if user.role.name=='administrator' or user.role.name=='manager':
+                        return JsonResponse({'Success':'logged as staff'}, status=200)
                     return JsonResponse({'Success':'logged in successfully'}, status=200)
                 else:
                     Errors['failedlog']='Неверный логин или пароль'

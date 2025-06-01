@@ -74,11 +74,15 @@ $(document).ready(function() {
             });
 
             const data = await response.json();
-            //alert('Ответ сервера: ' + JSON.stringify(data, null, 2));
+            JSON.stringify(data);
 
             if (response.ok) {
                 localStorage.setItem('userData', JSON.stringify(data));
-                window.location.href = '/profile/';
+                if(data.Success='logged as staff'){
+                    console.log(data)
+                    window.location.href = '/my_admin/orders/';
+                } else
+                    window.location.href = '/profile/';
             } else {
                 if (data.errors) {
                     // Вывод ошибок валидации для каждого поля

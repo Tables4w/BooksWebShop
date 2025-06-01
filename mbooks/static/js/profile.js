@@ -19,13 +19,30 @@ $(document).ready(function() {
       e.stopPropagation();
       //alert('Logout button clicked'); // Debug alert
       try {
-        // Очищаем все данные пользователя из localStorage
-        //localStorage.clear(); // Очищаем все данные из localStorage
-        localStorage.removeItem('userData');
-        localStorage.removeItem('userBalance');
-        //alert('LocalStorage cleared'); // Debug alert
-        // Перенаправляем на страницу входа
-        window.location.href = '/auth/';
+        const formData=new FormData()
+        formData.append('type', 'logout')
+
+        fetch('/profile/', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Очищаем все данные пользователя из localStorage
+              //localStorage.clear(); // Очищаем все данные из localStorage
+              localStorage.removeItem('userData');
+              localStorage.removeItem('userBalance');
+              //alert('LocalStorage cleared'); // Debug alert
+              // Перенаправляем на страницу входа
+              window.location.href = '/auth/';
+            } else {
+              handleErrors(data.errors);
+            }
+          })
+          .catch(error => {
+            console.error('Ошибка при выходе:', error);
+          });
       } catch (error) {
         alert('Error during logout: ' + error.message); // Debug alert
       }
@@ -370,13 +387,30 @@ $(document).ready(function() {
     e.stopPropagation();
     alert('Delete button clicked'); // Debug alert
     try {
-      // Очищаем все данные пользователя из localStorage
-      //localStorage.clear(); // Очищаем все данные из localStorage
-      localStorage.removeItem('userData');
-      localStorage.removeItem('userBalance');
-      //alert('LocalStorage cleared'); // Debug alert
-      // Перенаправляем на страницу входа
-      window.location.href = '/auth/';
+      const formData=new FormData()
+      formData.append('type', 'delete_account')
+
+      fetch('/profile/', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Очищаем все данные пользователя из localStorage
+          //localStorage.clear(); // Очищаем все данные из localStorage
+          localStorage.removeItem('userData');
+          localStorage.removeItem('userBalance');
+          //alert('LocalStorage cleared'); // Debug alert
+          // Перенаправляем на страницу входа
+          window.location.href = '/auth/';
+        } else {
+          handleErrors(data.errors);
+        }
+      })
+      .catch(error => {
+        console.error('Ошибка при удалении профиля:', error);
+      });
     } catch (error) {
       alert('Error during account deletion: ' + error.message); // Debug alert
     }
