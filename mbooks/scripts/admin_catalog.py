@@ -37,7 +37,7 @@ def serializeBooks(data, books):
 
 def admin_catalog_back(request):
     if request.method=='GET':
-        data = Book.objects.all()
+        data = Book.objects.filter(available=True)
 
         books = []
         
@@ -52,7 +52,7 @@ def admin_catalog_back(request):
 
         print(searchstr)
 
-        data = Book.objects.filter(name__icontains=searchstr)
+        data = Book.objects.filter(name__icontains=searchstr, available=True)
 
         books = []
         

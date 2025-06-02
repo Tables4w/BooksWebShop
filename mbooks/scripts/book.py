@@ -9,6 +9,8 @@ from .specfunc import detect_image_type
 def book_back(request, id):
     try:
         book = get_object_or_404(Book, id=id)
+        if(book.available==False):
+            raise Http404("Book not found")
     except Book.DoesNotExist:
         raise Http404("Book not found")
     

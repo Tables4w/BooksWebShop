@@ -55,8 +55,6 @@ def basket_view(request):
 login_required(login_url='/auth/')
 @csrf_exempt
 def getuserorders_view(request):
-    if not isAdm(request):
-        return redirect('/main/')
     return getuserorders_back(request)
 
 @csrf_exempt

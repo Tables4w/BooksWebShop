@@ -31,6 +31,7 @@ class Book(models.Model):
     price = models.PositiveIntegerField()
     cover = models.BinaryField()
     sold = models.PositiveIntegerField()
+    available=models.SmallIntegerField(default=1, help_text="1 или True – Книга доступна. 0 или False – книга удалена")
 
     def __str__(self):
         return self.name

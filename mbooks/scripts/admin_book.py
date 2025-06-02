@@ -56,7 +56,7 @@ def book_inf_validate(errors, title, author, description, price, year, publisher
      
     if not title:
         errors['title']='Название не заполнено'
-    if not author:
+    if not author or author==[]:
         errors['author']='Выберите автора'
     if not description:
         errors['description']='Описание не заполнено'
@@ -85,6 +85,8 @@ def admin_book_back(request, id):
 
         try:
             thsbk = get_object_or_404(Book, id=id)
+            if(thsbk.available==False):
+                raise Http404("Book not found")
         except Book.DoesNotExist:
             raise Http404("Book not found")
         
@@ -167,11 +169,10 @@ def admin_book_back(request, id):
             except Book.DoesNotExist:
                 raise Http404("Book not found")
             try:
-                BookGenre.objects.filter(book=id).delete()
-                BookAuthor.objects.filter(book=id).delete()
-                BookPublisher.objects.filter(book=id).delete()
-                Book.objects.get(id=id).delete()
+                thsbk.available=False;
+                thsbk.save()
             except Exception as e:
+                print(e)
                 return JsonResponse({'error':'Ошибка удаления'},status=400)
             return JsonResponse({'success': True})
             

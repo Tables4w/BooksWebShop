@@ -46,8 +46,8 @@ ITEMS_IN_CAROUSEL: int = 4
 def mainpage_back(request):
     # Выводим страницу с переданным словарём, хранящим два JSON по ключам new_books_json и bestseller_books_json
     if request.method == "GET":
-        new_books: list = serializeBooks(Book.objects.order_by('-id')[:ITEMS_IN_CAROUSEL])
-        bestseller_books: list = serializeBooks(Book.objects.order_by('-sold')[:ITEMS_IN_CAROUSEL])
+        new_books: list = serializeBooks(Book.objects.filter(available=True).order_by('-id')[:ITEMS_IN_CAROUSEL])
+        bestseller_books: list = serializeBooks(Book.objects.filter(available=True).order_by('-sold')[:ITEMS_IN_CAROUSEL])
 
         # Конвертируем списки в JSON и создаём из них словарь с ключами new_books_json и bestseller_books_json
         return render(request, 'mbooks/index.html', {
