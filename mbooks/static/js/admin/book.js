@@ -1,12 +1,9 @@
 
   // Static data for demonstration
 
-  const staticData = {
-    authors: ["Автор 1", "Автор 2", "Автор 3"],
-    genres: ["Жанр 1", "Жанр 2", "Жанр 3"],
-    publishers: ["Издательство 1", "Издательство 2"]
-  };
-  
+
+
+
 
   // Function to populate select options
   function populateSelect(selectElementId, dataArray) {
@@ -53,19 +50,14 @@
     populateSelect('bookGenre', staticData.genres);
     populateSelect('bookPublisher', staticData.publishers);
 
-
-    const books={
-    'id': '12',
-    'title': 'boog',
-    'description': 'desc',
-    'year': '2000-01-01',
-    'price': '100',
-    'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAGUlEQVR42u3BMQEAAAgDoJvcF+NPKAAAAAAAAAAAABwG4UBAAEZH6RiAAAAAElFTkSuQmCC',
-    'genre': ['Жанр 1', 'Жанр 2'],
-    'author': ["Автор 1"],
-    'publisher': ["Издательство 1"],
-    }
     
+
+
+    
+    const bookId=books.id;
+    
+           //От бэка: Запросы и принимаемые значения готовы в случае ошибки возвращается словарь errors
+           //с индексами такими же как названия полей errors['title']=... и тд 
 
   //Старые значения
   document.getElementById('bookTitle').value=books.title;
@@ -97,12 +89,13 @@
 
       const formData = new FormData(this);
       // You can add book ID to formData if needed, e.g., formData.append('book_id', bookId);
-
+      
+      formData.append('formtype','edit');
       try {
         // Replace '/api/edit-book/' with your actual backend endpoint for editing books
-        const response = await fetch('/api/edit-book/', {
+        const response = await fetch(`/my_admin/book/${bookId}/`, {
           method: 'POST',
-          body: formData
+          body: formData,
         });
 
         const data = await response.json();
@@ -121,12 +114,14 @@
 
     // Handle delete button click
     document.getElementById('deleteBookBtn').addEventListener('click', async function() {
+      const formData = new FormData();
+      formData.append('formtype', 'delete');
       if (confirm('Вы уверены, что хотите удалить эту книгу?')) {
-        const bookId = 1; // Replace with actual book ID
         try {
           // Replace '/api/delete-book/' with your actual backend endpoint for deleting books
-          const response = await fetch(`/api/delete-book/${bookId}/`, {
-            method: 'DELETE'
+          const response = await fetch(`/my_admin/book/${bookId}/`, {
+            method: 'POST',
+            body: formData,
           });
 
           const data = await response.json();

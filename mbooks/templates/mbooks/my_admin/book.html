@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/static/css/style.css" />
 </head>
+<script>
+const staticData = JSON.parse('{{ json_AuGePudata|escapejs }}');
+const books=JSON.parse('{{ json_bookdata|escapejs }}');
+</script>
 <body>
 
 <!-- Шапка -->
@@ -69,7 +73,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="bookAuthor" class="form-label">Автор</label>
-                    <select class="form-select" id="bookAuthor" name="author" required multiple>
+                    <select class="form-select" id="bookAuthor" name="author[]" required multiple>
                         <option value="">Выберите автора</option>
                         <!-- Options will be added by JavaScript -->
                     </select>
@@ -94,13 +98,13 @@
                 </div>
                 <div class="mb-3">
                     <label for="bookPublisher" class="form-label">Издательство</label>
-                    <select class="form-select" id="bookPublisher" name="publishers" required multiple>
+                    <select class="form-select" id="bookPublisher" name="publishers[]" required multiple>
                         <!-- Options will be added by JavaScript -->
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="bookGenre" class="form-label">Жанры</label>
-                    <select class="form-select" id="bookGenre" name="genres" required multiple>
+                    <select class="form-select" id="bookGenre" name="genres[]" required multiple>
                         <!-- Options will be added by JavaScript -->
                     </select>
                 </div>
