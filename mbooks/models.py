@@ -30,7 +30,7 @@ class Book(models.Model):
     publication_date = models.DateField(null=False)
     price = models.PositiveIntegerField()
     cover = models.BinaryField()
-    sold = models.PositiveIntegerField(default=0)
+    sold = models.PositiveIntegerField()
     available=models.SmallIntegerField(default=1, help_text="1 или True – Книга доступна. 0 или False – книга удалена")
 
     def __str__(self):
