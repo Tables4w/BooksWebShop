@@ -2,7 +2,7 @@
         // Order status mapping
         const orderStatuses = {
             1: 'Оформлен',
-            2: 'Готов к выдаче',
+            2: 'Готов к получению',
             3: 'Получен',
             4: 'Отказ'
         };
@@ -177,7 +177,6 @@
                 <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" style="color: #0d6efd;">
                     <div>
                         <strong>Логин:</strong> ${manager.login} | 
-                        <strong>Пароль:</strong> ${manager.password} | 
                         <strong>Email:</strong> ${manager.email}
                     </div>
                     <button class="btn btn-danger btn-sm delete-manager" data-manager-id="${manager.id}">Удалить</button>
@@ -189,7 +188,6 @@
             adminsList.innerHTML = admins.map(admin => `
                 <div class="list-group-item">
                     <strong>Логин:</strong> ${admin.login} | 
-                    <strong>Пароль:</strong> ${admin.password} | 
                     <strong>Email:</strong> ${admin.email}
                 </div>
             `).join('');
@@ -200,6 +198,7 @@
                     const managerId = e.target.dataset.managerId;
                     if (confirm('Вы уверены, что хотите удалить этого менеджера?')) {
                         await deleteManager(managerId);
+                        location.reload()
                     }
                 });
             });
@@ -209,8 +208,8 @@
         async function updateOrderStatus(orderId, newStatus) {
             const formData = new FormData();
             formData.append('type', 'changeStatus')
-            formData.append('order_id', orderId);
-            formData.append('status', newStatus);
+            formData.append('orderId', orderId);
+            formData.append('newStatus', newStatus);
 
             try {
                 const response = await fetch('/my_admin/orders/', {
@@ -231,6 +230,7 @@
             } catch (error) {
                 console.error('Error updating order status:', error);
                 alert('Ошибка при обновлении статуса заказа: ' + error.message);
+                throw new Error('Error updating order status on backend');
                 return false;
             }
         }
@@ -248,7 +248,7 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Заказ #${order.id}</h5>
                         <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" id="order-${order.id}-button" type="button" data-bs-toggle="dropdown">
                                 ${orderStatuses[order.status]}
                             </button>
                             <ul class="dropdown-menu">
@@ -280,7 +280,12 @@
                         e.preventDefault();
                         const newStatus = e.target.dataset.status;
                         if (confirm(`Изменить статус заказа #${order.id} на "${orderStatuses[newStatus]}"?`)) {
-                            await updateOrderStatus(order.id, newStatus);
+                            try{
+                                await updateOrderStatus(order.id, orderStatuses[newStatus]);
+                                document.getElementById(`order-${order.id}-button`).textContent=orderStatuses[newStatus];
+                            }
+                            catch{
+                            }
                         }
                     });
                 });
@@ -319,6 +324,7 @@
                         const modal = bootstrap.Modal.getInstance(document.getElementById('addManagerModal'));
                         modal.hide();
                         document.getElementById('addManagerForm').reset();
+                        location.reload();
                     }
                 } else {
                     alert('Пожалуйста, заполните все поля');

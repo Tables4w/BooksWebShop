@@ -7,6 +7,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from datetime import datetime
 from json import dumps
 from .specfunc import isAdm
 from mbooks.models import Order, OrderStatus, Purchase, Role
@@ -36,10 +37,10 @@ def serialize_orders() -> list:
     for order in Order.objects.select_related('status', 'user').order_by('-created_at'):
         out.append({
             'id'       : order.id,
-            'status'   : order.status,
+            'status'   : order.status.id,
             'user_name': order.user.username,
-            'date'     : order.created_at,
-            'total'    : order.price,
+            'date'     : order.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            'total'    : int(order.price),
             'books'    : get_purchases_books(order) # Список книг в заказе
         })
 
@@ -56,11 +57,10 @@ def serialize_users(role_id: UserRoles) -> list:
     out: list = [] # Результирующий список пользователей
 
     # Перебор всех пользователей с role
-    for user in User.objects.filter(role_id=role_id):
+    for user in User.objects.filter(role_id=role_id).order_by('-id'):
         out.append({
             'id'      : user.id,
             'login'   : user.username,
-            'password': user.password,
             'email'   : user.email
         })
 
@@ -90,6 +90,8 @@ def admin_orders_back(request) -> HttpResponse:
         if role.id == UserRoles.ADMINISTRATOR:
             managers = serialize_users(UserRoles.MANAGER)
             admins = serialize_users(UserRoles.ADMINISTRATOR)
+        
+        print(serialize_orders());
 
         # Выводим страницу с переданным словарём, хранящим два JSON по ключам managers_json и admins_json
         return render(request, 'mbooks/my_admin/orders.html', {
@@ -146,7 +148,8 @@ def admin_orders_back(request) -> HttpResponse:
             # Пытаемся изменить поле status у заказа. Отлавливаем ошибки, если таковы имеются
             try:
                 with transaction.atomic():
-                    order.status = new_status
+                    newStatus=OrderStatus.objects.get(name=new_status)
+                    order.status = newStatus
                     order.save()
 
             except Exception as e:

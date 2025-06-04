@@ -102,6 +102,7 @@
 
         if (response.ok) {
           alert('Изменения сохранены!');
+          location.reload();
           // Optionally redirect or update UI
         } else {
           alert('Ошибка сохранения: ' + data.message);

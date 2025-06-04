@@ -1,5 +1,6 @@
 
 // Function to fetch tags from backend
+/*
 async function fetchTags() {
     try {
         const response = await fetch('/my_admin/get_tags/');
@@ -15,6 +16,7 @@ async function fetchTags() {
         };
     }
 }
+*/
 
 document.getElementById('admlogout').addEventListener('click', async function () {
         try {
@@ -59,11 +61,12 @@ function populateList(listElementClass, dataArray) {
 // Function to add new tag
 async function addTag(tagType, tagValue) {
     const formData = new FormData();
+    formData.append('formtype', 'add')
     formData.append('type', tagType);
     formData.append('value', tagValue);
 
     try {
-        const response = await fetch('/my_admin/add_tag/', {
+        const response = await fetch('/my_admin/edit_tags/', {
             method: 'POST',
             body: formData
         });
@@ -73,8 +76,10 @@ async function addTag(tagType, tagValue) {
         
         if (data.success) {
             // Refresh the tags list
-            const tags = await fetchTags();
-            populateList(`${tagType}-list`, tags[tagType]);
+            //const tags = await fetchTags();
+            //tags[tagType].push(tagValue)
+            //populateList(`${tagType}-list`, tags[tagType]);
+            location.reload();
             return true;
         } else {
             throw new Error(data.error || 'Failed to add tag');
@@ -89,11 +94,12 @@ async function addTag(tagType, tagValue) {
 // Function to delete tag
 async function deleteTag(tagType, tagValue) {
     const formData = new FormData();
+    formData.append('formtype', 'del')
     formData.append('type', tagType);
     formData.append('value', tagValue);
 
     try {
-        const response = await fetch('/my_admin/delete_tag/', {
+        const response = await fetch('/my_admin/edit_tags/', {
             method: 'POST',
             body: formData
         });
@@ -103,8 +109,9 @@ async function deleteTag(tagType, tagValue) {
         
         if (data.success) {
             // Refresh the tags list
-            const tags = await fetchTags();
-            populateList(`${tagType}-list`, tags[tagType]);
+            //const tags = await fetchTags();
+            //populateList(`${tagType}-list`, tags[tagType]);
+            location.reload();
             return true;
         } else {
             throw new Error(data.error || 'Failed to delete tag');
@@ -119,7 +126,7 @@ async function deleteTag(tagType, tagValue) {
 // Initialize the page
 document.addEventListener('DOMContentLoaded', async () => {
     // Fetch and display initial tags
-    const tags = await fetchTags();
+    //const tags = await fetchTags();
 
     //Тест
     //const tags={'authors':['Author 1', 'Author 2', 'Author 3'], 'genres':['Genre 1', 'Genre 2'], 'publishers':['Publisher one']};
