@@ -9,25 +9,20 @@ from django.db import IntegrityError
 from django.db import transaction
 from datetime import datetime
 import os
-@csrf_exempt
+import json
+
+def fillAuGePudata():
+     AuGePudata = {'authors':list(Author.objects.values_list('name', flat=True)),
+                    'genres':list(Genre.objects.values_list('name',flat=True)),
+                    'publishers':list(Publisher.objects.values_list('name',flat=True))}
+     return AuGePudata
+
 def admin_add_book_back(request):
-    if not isAdm(request):
-        return redirect('/main/')
 
     if request.method == 'GET':
-        # Обработка GET-запроса для получения данных
-        if request.GET.get('type') == 'get_data':
-            authors = list(Author.objects.values_list('name', flat=True))
-            genres = list(Genre.objects.values_list('name', flat=True))
-            publishers = list(Publisher.objects.values_list('name', flat=True))
-            return JsonResponse({
-                'authors': authors,
-                'genres': genres,
-                'publishers': publishers
-            })
-        else:
-            # Отображение страницы
-            return render(request, 'mbooks/my_admin/add_book.html')
+        AuGePudata=fillAuGePudata()
+        json_AuGePudata=json.dumps(AuGePudata)
+        return render(request, 'mbooks/my_admin/add_book.html',{'json_AuGePudata':json_AuGePudata})
     
     elif request.method == 'POST':
         

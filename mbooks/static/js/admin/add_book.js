@@ -1,11 +1,4 @@
 
-  // Static data for demonstration
-  const staticData = {
-    authors: ["Автор 1", "Автор 2", "Автор 3"],
-    genres: ["Жанр 1", "Жанр 2", "Жанр 3"],
-    publishers: ["Издательство 1", "Издательство 2"]
-  };
-
   // Function to populate select options
   function populateSelect(selectElementId, dataArray) {
     const selectElement = document.getElementById(selectElementId);

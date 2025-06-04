@@ -8,6 +8,7 @@
         };
 
         // Function to fetch user type
+        /*
         async function fetchUserType() {
             try {
                 // Check for test user type in localStorage
@@ -25,7 +26,7 @@
                 console.error('Error fetching user type:', error);
                 return 2; // Default to type 2 if error
             }
-        }
+        }*/
 
 
         document.getElementById('admlogout').addEventListener('click', async function () {
@@ -49,6 +50,7 @@
             }
         });
         // Function to fetch all orders
+        /*
         async function fetchOrders() {
             // Static test data for one order
             // const testOrders = [
@@ -77,8 +79,10 @@
                 return [];
             }
         }
+            */
 
         // Function to fetch employees
+        /*
         async function fetchEmployees() {
             // Static test data for managers and admins
             // const testData = {
@@ -101,7 +105,7 @@
                 console.error('Error fetching employees:', error);
                 return { managers: [], admins: [] };
             }
-        }
+        }*/
 
         // Function to add new manager
         async function addManager(login, password, email) {
@@ -163,7 +167,7 @@
 
         // Function to display employees
         async function displayEmployees() {
-            const { managers, admins } = await fetchEmployees();
+           // const { managers, admins } = await fetchEmployees();
             
             // Display managers
             const managersList = document.querySelector('.managers-list .list-group');
@@ -231,7 +235,7 @@
 
         // Function to display orders
         async function displayOrders() {
-            const orders = await fetchOrders();
+            //const orders = await fetchOrders();
             const ordersContainer = document.querySelector('.orders-container');
             ordersContainer.innerHTML = '';
 
@@ -286,11 +290,12 @@
         // Initialize the page
         document.addEventListener('DOMContentLoaded', async () => {
             // Check user type and show/hide employees tab
-            const userType = await fetchUserType();
+            //const userType = await fetchUserType();
             //const userType='administrator';
-            console.log('User Type:', userType);
             
-            if (userType === 'administrator') {
+            console.log('User Type:', userType.type);
+            
+            if (userType.type === 'administrator') {
                 document.getElementById('employees-tab-container').style.display = 'block';
                 // Display employees if user is admin
                 await displayEmployees();
