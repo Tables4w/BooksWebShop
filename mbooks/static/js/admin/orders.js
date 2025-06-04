@@ -110,12 +110,13 @@
         // Function to add new manager
         async function addManager(login, password, email) {
             const formData = new FormData();
+            formData.append('type', 'addManager');
             formData.append('login', login);
             formData.append('password', password);
             formData.append('email', email);
 
             try {
-                const response = await fetch('/my_admin/add_manager/', {
+                const response = await fetch('/my_admin/orders/', {
                     method: 'POST',
                     body: formData
                 });
@@ -140,10 +141,11 @@
         // Function to delete manager
         async function deleteManager(managerId) {
             const formData = new FormData();
+            formData.append('type', 'removeManager');
             formData.append('manager_id', managerId);
 
             try {
-                const response = await fetch('/my_admin/delete_manager/', {
+                const response = await fetch('/my_admin/orders/', {
                     method: 'POST',
                     body: formData
                 });
@@ -211,7 +213,7 @@
             formData.append('status', newStatus);
 
             try {
-                const response = await fetch('/my_admin/order/', {
+                const response = await fetch('/my_admin/orders/', {
                     method: 'POST',
                     body: formData
                 });
