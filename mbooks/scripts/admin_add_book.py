@@ -60,7 +60,8 @@ def admin_add_book_back(request):
                     description=description,
                     price=price,
                     publication_date=year,
-                    cover=img  
+                    cover=img,
+                    sold=0
                 )
 
                 # Привязка авторов
