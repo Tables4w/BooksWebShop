@@ -55,29 +55,26 @@
 
     // Handle form submission
     document.getElementById('addBookForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
+        e.preventDefault();
+        const formData = new FormData(this);
+        formData.append('type', 'add_book'); // Параметр для определения типа запроса
 
-      const formData = new FormData(this);
+        try {
+            const response = await fetch('/my_admin/add_book/', {
+                method: 'POST',
+                body: formData
+            });
 
-      try {
-        // Replace '/api/add-book/' with your actual backend endpoint for adding books
-        const response = await fetch('/api/add-book/', {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          alert('Книга успешно добавлена!');
-          // Optionally redirect or update UI
-          window.location.href = '/my_admin/catalog/';
-        } else {
-          alert('Ошибка добавления книги: ' + data.message);
+            const data = await response.json();
+            if (response.ok) {
+                alert(data.message);
+                window.location.href = '/my_admin/catalog/';
+            } else {
+                alert(`Ошибка: ${data.message}`);
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при добавлении книги');
         }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Произошла ошибка при добавлении книги');
-      }
     });
-  });
+});
