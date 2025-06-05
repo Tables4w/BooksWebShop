@@ -132,16 +132,21 @@
                 if (data.success) {
                     console.log('addManager success: true.'); // Лог успешного ответа
                     // Добавляем нового менеджера в начало массива
-                    managers.unshift({
-                        id: data.manager_id, // Используем ID, возвращенный сервером
-                        login: login,
-                        email: email
-                    });
-                    console.log('Manager added to local array.', managers); // Лог после добавления в массив
-                    // Обновляем отображение
-                    await displayEmployees();
-                    console.log('displayEmployees called after adding manager.'); // Лог после вызова displayEmployees
-                    return true;
+                    if (data.manager && data.manager.id) {
+                        managers.unshift({
+                            id: data.manager.id,
+                            login: data.manager.username,
+                            email: data.manager.email
+                        });
+                        console.log('Manager added to local array:', managers); // Лог после добавления в массив
+                        // Обновляем отображение
+                        await displayEmployees();
+                        console.log('displayEmployees called after adding manager.'); // Лог после вызова displayEmployees
+                        return true;
+                    } else {
+                        console.error('Manager data missing in response:', data);
+                        throw new Error('Данные менеджера отсутствуют в ответе сервера');
+                    }
                 } else {
                     console.error('addManager success: false. Error:', data.error); // Лог ошибки в ответе
                     throw new Error(data.error || 'Failed to add manager');
@@ -156,6 +161,13 @@
         // Function to delete manager
         async function deleteManager(managerId) {
             console.log('[admin/orders.js] deleteManager function called for ID:', managerId); // Лог входа в deleteManager
+            
+            if (!managerId) {
+                console.error('Manager ID is undefined or null');
+                alert('Ошибка: ID менеджера не указан');
+                return false;
+            }
+
             const formData = new FormData();
             formData.append('type', 'removeManager');
             formData.append('manager_id', managerId);
@@ -168,6 +180,11 @@
                     body: formData
                 });
                 console.log('deleteManager response status:', response.status); // Лог статуса ответа
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
                 console.log('deleteManager response data:', data); // Лог данных ответа
                 
@@ -181,12 +198,13 @@
                         console.log('List item found:', listItem); // Лог найденного li
                         // Добавляем класс для анимации
                         listItem.style.opacity = '0';
+                        listItem.style.transform = 'translateX(-20px)';
                         console.log('Applied fade-out style.'); // Лог применения стиля
                         // Ждем окончания анимации
                         await new Promise(resolve => setTimeout(resolve, 300));
                         console.log('Animation delay finished.'); // Лог окончания задержки
                         // Удаляем менеджера из массива
-                        const index = managers.findIndex(manager => manager.id == managerId); // Использовать == для сравнения числа и строки, или привести тип
+                        const index = managers.findIndex(manager => manager.id == managerId);
                         console.log('Found manager index in array:', index); // Лог индекса в массиве
                         if (index !== -1) {
                             managers.splice(index, 1);
@@ -221,46 +239,53 @@
         // Function to display employees
         async function displayEmployees() {
             console.log('[admin/orders.js] displayEmployees function called.'); // Лог входа в displayEmployees
+            console.log('Current managers:', managers); // Лог текущих менеджеров
+            console.log('Current admins:', admins); // Лог текущих админов
+
             // Display managers
             const managersList = document.querySelector('.managers-list .list-group');
             console.log('Managers list element:', managersList); // Лог элемента менеджеров
-            managersList.innerHTML = `
-                <h4 class="bg-primary text-white rounded p-2 mb-3">Менеджеры</h4>
-                ${managers.map(manager => `
-                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-manager-id="${manager.id}" style="color: #000; transition: opacity 0.3s ease;">
-                        <div>
-                            <strong>Логин:</strong> ${manager.login} | 
-                            <strong>Email:</strong> ${manager.email}
+            if (managersList) {
+                managersList.innerHTML = `
+                    <h4 class="bg-primary text-white rounded p-2 mb-3">Менеджеры</h4>
+                    ${managers && managers.length > 0 ? managers.map(manager => `
+                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-manager-id="${manager.id}" style="color: #000; transition: opacity 0.3s ease;">
+                            <div>
+                                <strong>Логин:</strong> ${manager.login || manager.username} | 
+                                <strong>Email:</strong> ${manager.email}
+                            </div>
+                            <button class="btn btn-danger btn-sm delete-manager" data-manager-id="${manager.id}">Удалить</button>
                         </div>
-                        <button class="btn btn-danger btn-sm delete-manager" data-manager-id="${manager.id}">Удалить</button>
-                    </div>
-                `).join('')}
-            `;
-            console.log('Managers list HTML populated.'); // Лог после заполнения HTML
+                    `).join('') : '<div class="list-group-item">Нет менеджеров</div>'}
+                `;
+                console.log('Managers list HTML populated.'); // Лог после заполнения HTML
+            }
 
             // Display admins
             const adminsList = document.querySelector('.admins-list .list-group');
             console.log('Admins list element:', adminsList); // Лог элемента админов
-            adminsList.innerHTML = `
-                <h4 class="bg-danger text-white rounded p-2 mb-3">Администраторы</h4>
-                ${admins.map(admin => `
-                    <div class="list-group-item">
-                        <strong>Логин:</strong> ${admin.login} | 
-                        <strong>Email:</strong> ${admin.email}
-                    </div>
-                `).join('')}
-            `;
-            console.log('Admins list HTML populated.'); // Лог после заполнения HTML
+            if (adminsList) {
+                adminsList.innerHTML = `
+                    <h4 class="bg-danger text-white rounded p-2 mb-3">Администраторы</h4>
+                    ${admins && admins.length > 0 ? admins.map(admin => `
+                        <div class="list-group-item">
+                            <strong>Логин:</strong> ${admin.login || admin.username} | 
+                            <strong>Email:</strong> ${admin.email}
+                        </div>
+                    `).join('') : '<div class="list-group-item">Нет администраторов</div>'}
+                `;
+                console.log('Admins list HTML populated.'); // Лог после заполнения HTML
+            }
 
             // Add event listeners for delete buttons
             document.querySelectorAll('.delete-manager').forEach(button => {
                 button.addEventListener('click', async (e) => {
                     console.log('[admin/orders.js] Delete manager button clicked.'); // Лог нажатия кнопки удаления менеджера
-                    const managerId = e.target.dataset.managerId;
-                    // Удаляем подтверждение
-                    // if (confirm('Вы уверены, что хотите удалить этого менеджера?')) {
+                    const managerId = e.target.closest('.list-group-item').dataset.managerId;
+                    console.log('Manager ID to delete:', managerId); // Лог ID менеджера для удаления
+                    if (confirm('Вы уверены, что хотите удалить этого менеджера?')) {
                         await deleteManager(managerId);
-                    // }
+                    }
                 });
             });
             console.log('Delete manager event listeners added.'); // Лог после добавления слушателей

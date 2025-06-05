@@ -55,12 +55,12 @@ def admin_edit_tags_back(request):
                     pub=Publisher.objects.get(name=name);
                     with transaction.atomic(): pub.delete()
                 else:
-                    JsonResponse({'error':'Нет такого типа тэгов'}, status=400)
+                    return JsonResponse({'error':'Нет такого типа тэгов'}, status=400)
                 
-                return JsonResponse({'success':'Тег успешно создан'}, status=200)
+                return JsonResponse({'success':'Тег успешно удален'}, status=200)
             
             except Exception as e:
-                return JsonResponse({'error':'Ошибка удаления тэга: '+ e}, status=400)
+                return JsonResponse({'error':'Ошибка удаления тэга: '+ str(e)}, status=400)
             
         else:
             return JsonResponse({'error':'Неизвестное действие'}, status=400)

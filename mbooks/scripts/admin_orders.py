@@ -253,7 +253,25 @@ def admin_orders_back(request) -> HttpResponse:
             # Создаём нового менеджера
             try:
                 with transaction.atomic():
-                    user=User.objects.create_user(username=login, password=password, email=email, role_id=UserRoles.MANAGER)
+                    # Генерируем случайное имя и фамилию для менеджера
+                    first_name = f"Manager{User.objects.filter(role_id=UserRoles.MANAGER).count() + 1}"
+                    last_name = "System"
+                    
+                    # Устанавливаем дату рождения на 18 лет назад
+                    from datetime import date, timedelta
+                    dob = date.today() - timedelta(days=18*365)
+                    
+                    # Создаем пользователя с автоматически заполненными полями
+                    user = User.objects.create_user(
+                        username=login,
+                        password=password,
+                        email=email,
+                        role_id=UserRoles.MANAGER,
+                        first_name=first_name,
+                        last_name=last_name,
+                        dob=dob,
+                        gender='м'  # Устанавливаем пол по умолчанию
+                    )
                     print(f'[admin_orders_back] addManager - Successfully created manager: {user.username} (ID: {user.id})') # Лог успешного создания
 
             except Exception as e:
@@ -265,12 +283,18 @@ def admin_orders_back(request) -> HttpResponse:
 
             # Успешное добавление нового менеджера
             print('[admin_orders_back] addManager - Manager added successfully. Returning 201.') # Лог успешного ответа
-            return JsonResponse({ 'success': True, 'manager': { 'id': user.id, 'username': user.username, 'email': user.email } }, status=201) # Возвращаем данные созданного менеджера
+            return JsonResponse({
+                'success': True,
+                'manager': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email
+                }
+            }, status=201) # Возвращаем данные созданного менеджера
 
         # Тип запроса - удаление менеджера
         if post_type == 'removeManager':
             print('[admin_orders_back] Handling removeManager request.') # Лог удаления менеджера
-
             # Проверка на принадлежность пользователя к Администраторам
             if role.id != UserRoles.ADMINISTRATOR:
                 print('[admin_orders_back] User role does not have permission for removeManager.') # Лог ошибки прав доступа
@@ -279,48 +303,48 @@ def admin_orders_back(request) -> HttpResponse:
                     'error': 'Роль пользователя не имеет прав на выполнение этого запроса'
                 })
 
-            # Получение id менеджера для удаления и проверка его на пустоту
-            manager_id: int = request.POST.get('manager_id')
-            print(f'[admin_orders_back] removeManager - manager_id: {manager_id}') # Лог id менеджера для удаления
-            if not manager_id: 
-                print('[admin_orders_back] removeManager - Missing manager_id. Returning 400.') # Лог отсутствующих данных
-                return JsonResponse({
-                'success': False,
-                'error': 'Поле manager_id должно быть заполнено'
-            })
+            manager_id = request.POST.get('manager_id')
+            print(f'[admin_orders_back] removeManager - manager_id: {manager_id}') # Лог ID менеджера
 
-            # Поиск менеджера по id
+            # Проверка на пустоту manager_id
+            if not manager_id:
+                print('[admin_orders_back] removeManager - Missing manager_id. Returning 400.') # Лог отсутствующего ID
+                return JsonResponse({
+                    'success': False,
+                    'error': 'ID менеджера не указан'
+                })
+
             try:
-                user: User = User.objects.get(id=manager_id, role_id=UserRoles.MANAGER)
+                # Проверяем существование менеджера
+                manager = User.objects.get(id=manager_id, role_id=UserRoles.MANAGER)
                 print(f'[admin_orders_back] removeManager - Found manager with ID: {manager_id}') # Лог найденного менеджера
-            except User.DoesNotExist:
-                print(f'[admin_orders_back] removeManager - Manager with ID {manager_id} not found. Returning 404.') # Лог ненайденного менеджера
+                
+                # Удаляем менеджера
+                manager.delete()
+                print(f'[admin_orders_back] removeManager - Successfully deleted manager with ID: {manager_id}') # Лог успешного удаления
+                
                 return JsonResponse({
-                'success': False,
-                'error': f'Менеджера с id={manager_id} не существует'
-            })
-
-            # Пытаемся удалить найденного менеджера. Отлавливаем ошибки, если таковы имеются
-            try:
-                with transaction.atomic():
-                    user.delete()
-                    print(f'[admin_orders_back] removeManager - Successfully deleted manager with ID: {manager_id}') # Лог успешного удаления
-
-            except Exception as e: 
+                    'success': True,
+                    'message': 'Менеджер успешно удален'
+                })
+            except User.DoesNotExist:
+                print(f'[admin_orders_back] removeManager - Manager with ID {manager_id} not found.') # Лог ненайденного менеджера
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Менеджер не найден'
+                })
+            except Exception as e:
                 print(f'[admin_orders_back] removeManager - Error deleting manager: {e}') # Лог ошибки при удалении
                 return JsonResponse({
-                'success': False,
-                'error': f'Ошибка при удалении менеджера: {str(e)}'
-            })
+                    'success': False,
+                    'error': f'Ошибка при удалении менеджера: {str(e)}'
+                })
 
-            # Успешное удаление менеджера
-            print('[admin_orders_back] removeManager - Manager deleted successfully. Returning 200.') # Лог успешного ответа
-            return JsonResponse({ 'success': True }, status=200)
-
-        print(f'[admin_orders_back] Unknown POST type: {post_type}. Returning 400.') # Лог неизвестного типа POST
+        # Если тип запроса не распознан
+        print(f'[admin_orders_back] Unknown POST type: {post_type}') # Лог неизвестного типа
         return JsonResponse({
             'success': False,
-            'error': 'Неизвестный тип POST запроса'
+            'error': 'Неподдерживаемый тип запроса'
         })
 
     # На всякий случай отсекаем все не поддерживающиеся методы

@@ -33,19 +33,24 @@ async function fetchTags() {
 function populateList(listElementClass, dataArray) {
     console.log(`Populating ${listElementClass} with:`, dataArray);
     
-    const listElement = document.querySelector(`ul.list-group.${listElementClass}`);
+    // Преобразуем имя класса для издательств
+    const actualListClass = listElementClass === 'publishers-list' ? 'publisher-list' : listElementClass;
+    const listElement = document.querySelector(`ul.list-group.${actualListClass}`);
     if (!listElement) {
-        console.error(`List element with class ${listElementClass} not found`);
+        console.error(`List element with class ${actualListClass} not found`);
         return;
     }
 
     if (!Array.isArray(dataArray)) {
-        console.error(`Invalid data array for ${listElementClass}:`, dataArray);
+        console.error(`Invalid data array for ${actualListClass}:`, dataArray);
         return;
     }
 
+    console.log(`Found ${dataArray.length} items to populate in ${actualListClass}`);
+
     // Анимация удаления старых элементов
     const currentItems = Array.from(listElement.children);
+    console.log(`Removing ${currentItems.length} current items from ${actualListClass}`);
     currentItems.forEach(item => {
         item.style.transition = 'all 0.3s ease';
         item.style.opacity = '0';
@@ -56,6 +61,7 @@ function populateList(listElementClass, dataArray) {
     // Добавление новых элементов с анимацией
     setTimeout(() => {
         listElement.innerHTML = ''; // Clear current list
+        console.log(`Adding ${dataArray.length} new items to ${actualListClass}`);
         dataArray.forEach((item, index) => {
             const listItem = document.createElement('li');
             listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
@@ -68,8 +74,10 @@ function populateList(listElementClass, dataArray) {
             deleteButton.type = 'button';
             deleteButton.classList.add('btn', 'btn-danger', 'btn-sm', 'delete-tag-btn');
             deleteButton.textContent = 'Удалить';
-            deleteButton.dataset.tagType = listElementClass.replace('-list', '');
+            deleteButton.dataset.tagType = listElementClass === 'publishers-list' ? 'publishers' : listElementClass.replace('-list', 's');
             deleteButton.dataset.tagValue = item;
+
+            console.log(`Created delete button for ${item} with tagType=${deleteButton.dataset.tagType}`);
 
             listItem.appendChild(deleteButton);
             listElement.appendChild(listItem);
@@ -90,6 +98,10 @@ async function updateAllLists() {
     // Используем текущие теги
     if (tags && typeof tags === 'object') {
         console.log('Using current tags:', tags);
+        console.log('Authors array:', tags.authors);
+        console.log('Genres array:', tags.genres);
+        console.log('Publishers array:', tags.publishers);
+        
         populateList('author-list', tags.authors || []);
         populateList('genre-list', tags.genres || []);
         populateList('publisher-list', tags.publishers || []);
@@ -182,7 +194,7 @@ async function addTag(tagType, tagValue) {
                 console.log('Updated tags object:', tags);
             }
             // Обновляем только текущий список
-            const listElementClass = tagType.replace('s', '') + '-list'; // genres -> genre-list
+            const listElementClass = tagType === 'publishers' ? 'publisher-list' : tagType.replace('s', '') + '-list'; // genres -> genre-list
             console.log('Looking for list element with class:', listElementClass);
             const listElement = document.querySelector(`ul.list-group.${listElementClass}`);
             console.log('Found list element:', listElement);
@@ -236,11 +248,12 @@ async function deleteTag(tagType, tagValue) {
     }
 
     // Находим элемент списка, который нужно удалить
-    const listElementClass = tagType.replace('s', '') + '-list'; // genres -> genre-list
+    const listElementClass = tagType === 'publishers' ? 'publisher-list' : tagType.replace('s', '') + '-list';
     console.log('Looking for list element with class:', listElementClass);
     const listElement = document.querySelector(`ul.list-group.${listElementClass}`);
     console.log('Found list element:', listElement);
     
+    let itemToRemove = null;
     if (listElement) {
         const items = listElement.querySelectorAll('.list-group-item');
         console.log('Found list items:', items.length);
@@ -249,15 +262,12 @@ async function deleteTag(tagType, tagValue) {
             const itemText = item.textContent.replace('Удалить', '').trim();
             console.log('Checking item:', itemText, 'against:', tagValue);
             if (itemText === tagValue) {
-                console.log('Found matching item, removing from DOM');
+                console.log('Found matching item, preparing for removal');
+                itemToRemove = item;
                 // Анимация удаления
                 item.style.transition = 'all 0.3s ease';
                 item.style.opacity = '0';
                 item.style.transform = 'translateX(-20px)';
-                setTimeout(() => {
-                    console.log('Removing item from DOM');
-                    item.remove();
-                }, 300);
                 break;
             }
         }
@@ -279,7 +289,7 @@ async function deleteTag(tagType, tagValue) {
     }
 
     // Отправляем запрос на сервер
-    const serverTagType = tagType.replace('s', ''); // authors -> author, genres -> genre, publishers -> publisher
+    const serverTagType = tagType === 'publishers' ? 'publisher' : tagType.replace('s', '');
     console.log(`Sending delete request: type=${serverTagType}, value=${tagValue}`);
     
     const formData = new FormData();
@@ -288,6 +298,12 @@ async function deleteTag(tagType, tagValue) {
     formData.append('value', tagValue);
 
     try {
+        // Ждем завершения анимации перед отправкой запроса
+        if (itemToRemove) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            itemToRemove.remove();
+        }
+
         console.log('Sending request to server...');
         const response = await fetch('/my_admin/edit_tags/', {
             method: 'POST',
@@ -350,6 +366,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const genreList = document.querySelector('ul.list-group.genre-list');
         const publisherList = document.querySelector('ul.list-group.publisher-list');
 
+        console.log('Found elements:', {
+            authorList: authorList ? 'yes' : 'no',
+            genreList: genreList ? 'yes' : 'no',
+            publisherList: publisherList ? 'yes' : 'no'
+        });
+
         if (!authorList || !genreList || !publisherList) {
             throw new Error('Required list elements not found');
         }
@@ -357,6 +379,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Отображаем начальные теги
         if (tags && typeof tags === 'object') {
             console.log('Initial tags:', tags);
+            console.log('Authors:', tags.authors);
+            console.log('Genres:', tags.genres);
+            console.log('Publishers:', tags.publishers);
+            
             populateList('author-list', tags.authors || []);
             populateList('genre-list', tags.genres || []);
             populateList('publisher-list', tags.publishers || []);
