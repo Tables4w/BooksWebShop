@@ -1,9 +1,10 @@
 from django.http import JsonResponse
 from django.shortcuts import render
-from mbooks.models import Book
+from mbooks.models import Book, Genre, Author, Publisher
 from base64 import b64encode
 from json import dumps
 from .specfunc import detect_image_type
+import base64
 
 
 """
@@ -49,10 +50,26 @@ def mainpage_back(request):
         new_books: list = serializeBooks(Book.objects.filter(available=True).order_by('-id')[:ITEMS_IN_CAROUSEL])
         bestseller_books: list = serializeBooks(Book.objects.filter(available=True).order_by('-sold')[:ITEMS_IN_CAROUSEL])
 
+        # Получаем самую свежую книгу по дате публикации
+        latest_book = Book.objects.filter(available=1).order_by('-publication_date').first()
+        latest_book_data = None
+        if latest_book:
+            cover_image = ''
+            if latest_book.cover:
+                img_type = detect_image_type(latest_book.cover)
+                if img_type:
+                    cover_image = f'data:image/{img_type};base64,{base64.b64encode(latest_book.cover).decode("utf-8")}'
+            latest_book_data = {
+                'id': latest_book.id,
+                'name': latest_book.name,
+                'cover_url': cover_image,
+            }
+
         # Конвертируем списки в JSON и создаём из них словарь с ключами new_books_json и bestseller_books_json
         return render(request, 'mbooks/index.html', {
             'new_books_json': dumps(new_books),
-            'bestseller_books_json': dumps(bestseller_books)
+            'bestseller_books_json': dumps(bestseller_books),
+            'latest_book': latest_book_data,
         })
 
     # Ошибка: вызван неправильный метод (возможен только GET)

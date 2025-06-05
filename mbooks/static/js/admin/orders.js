@@ -1,3 +1,4 @@
+        console.log('[admin/orders.js] Script loaded.'); // Лог загрузки скрипта
 
         // Order status mapping
         const orderStatuses = {
@@ -109,11 +110,14 @@
 
         // Function to add new manager
         async function addManager(login, password, email) {
+            console.log('[admin/orders.js] addManager function called.'); // Лог входа в addManager
             const formData = new FormData();
             formData.append('type', 'addManager');
             formData.append('login', login);
             formData.append('password', password);
             formData.append('email', email);
+
+            console.log('Sending addManager POST request.'); // Лог перед запросом
 
             try {
                 const response = await fetch('/my_admin/orders/', {
@@ -121,18 +125,29 @@
                     body: formData
                 });
 
-                if (!response.ok) throw new Error('Network response was not ok');
+                console.log('addManager response status:', response.status); // Лог статуса ответа
                 const data = await response.json();
+                console.log('addManager response data:', data); // Лог данных ответа
                 
                 if (data.success) {
-                    // Refresh employees list
+                    console.log('addManager success: true.'); // Лог успешного ответа
+                    // Добавляем нового менеджера в начало массива
+                    managers.unshift({
+                        id: data.manager_id, // Используем ID, возвращенный сервером
+                        login: login,
+                        email: email
+                    });
+                    console.log('Manager added to local array.', managers); // Лог после добавления в массив
+                    // Обновляем отображение
                     await displayEmployees();
+                    console.log('displayEmployees called after adding manager.'); // Лог после вызова displayEmployees
                     return true;
                 } else {
+                    console.error('addManager success: false. Error:', data.error); // Лог ошибки в ответе
                     throw new Error(data.error || 'Failed to add manager');
                 }
             } catch (error) {
-                console.error('Error adding manager:', error);
+                console.error('Error in addManager fetch:', error); // Лог ошибки fetch
                 alert('Ошибка при добавлении менеджера: ' + error.message);
                 return false;
             }
@@ -140,28 +155,64 @@
 
         // Function to delete manager
         async function deleteManager(managerId) {
+            console.log('[admin/orders.js] deleteManager function called for ID:', managerId); // Лог входа в deleteManager
             const formData = new FormData();
             formData.append('type', 'removeManager');
             formData.append('manager_id', managerId);
+
+            console.log('Sending deleteManager POST request for ID:', managerId); // Лог перед запросом
 
             try {
                 const response = await fetch('/my_admin/orders/', {
                     method: 'POST',
                     body: formData
                 });
-
-                if (!response.ok) throw new Error('Network response was not ok');
+                console.log('deleteManager response status:', response.status); // Лог статуса ответа
                 const data = await response.json();
+                console.log('deleteManager response data:', data); // Лог данных ответа
                 
                 if (data.success) {
-                    // Refresh employees list
-                    await displayEmployees();
-                    return true;
+                    console.log('deleteManager success: true for ID:', managerId); // Лог успешного ответа
+                    // Находим элемент менеджера
+                    const managerElement = document.querySelector(`[data-manager-id="${managerId}"]`);
+                    console.log('Manager element found:', managerElement); // Лог найденного элемента
+                    if (managerElement) {
+                        const listItem = managerElement.closest('.list-group-item');
+                        console.log('List item found:', listItem); // Лог найденного li
+                        // Добавляем класс для анимации
+                        listItem.style.opacity = '0';
+                        console.log('Applied fade-out style.'); // Лог применения стиля
+                        // Ждем окончания анимации
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                        console.log('Animation delay finished.'); // Лог окончания задержки
+                        // Удаляем менеджера из массива
+                        const index = managers.findIndex(manager => manager.id == managerId); // Использовать == для сравнения числа и строки, или привести тип
+                        console.log('Found manager index in array:', index); // Лог индекса в массиве
+                        if (index !== -1) {
+                            managers.splice(index, 1);
+                            console.log('Manager removed from local array.', managers); // Лог после удаления из массива
+                        }
+                        // Удаляем элемент из DOM
+                        listItem.remove();
+                        console.log('Manager element removed from DOM.'); // Лог удаления из DOM
+                        return true;
+                    } else {
+                        console.warn('Manager element not found in DOM for ID:', managerId); // Лог, если элемент не найден
+                        // Даже если элемент не найден на фронте, считаем успех, если сервер ответил положительно
+                        // Удаляем менеджера из массива (повторная попытка, если первая не удалась)
+                        const index = managers.findIndex(manager => manager.id == managerId);
+                        if (index !== -1) {
+                            managers.splice(index, 1);
+                            console.log('Manager removed from local array (fallback).', managers); // Лог после удаления из массива (fallback)
+                        }
+                        return true; // Считаем успешным, если сервер вернул success: true
+                    }
                 } else {
+                    console.error('deleteManager success: false. Error:', data.error); // Лог ошибки в ответе
                     throw new Error(data.error || 'Failed to delete manager');
                 }
             } catch (error) {
-                console.error('Error deleting manager:', error);
+                console.error('Error in deleteManager fetch:', error); // Лог ошибки fetch
                 alert('Ошибка при удалении менеджера: ' + error.message);
                 return false;
             }
@@ -169,86 +220,144 @@
 
         // Function to display employees
         async function displayEmployees() {
-           // const { managers, admins } = await fetchEmployees();
-            
+            console.log('[admin/orders.js] displayEmployees function called.'); // Лог входа в displayEmployees
             // Display managers
             const managersList = document.querySelector('.managers-list .list-group');
-            managersList.innerHTML = managers.map(manager => `
-                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" style="color: #0d6efd;">
-                    <div>
-                        <strong>Логин:</strong> ${manager.login} | 
-                        <strong>Email:</strong> ${manager.email}
+            console.log('Managers list element:', managersList); // Лог элемента менеджеров
+            managersList.innerHTML = `
+                <h4 class="bg-primary text-white rounded p-2 mb-3">Менеджеры</h4>
+                ${managers.map(manager => `
+                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-manager-id="${manager.id}" style="color: #000; transition: opacity 0.3s ease;">
+                        <div>
+                            <strong>Логин:</strong> ${manager.login} | 
+                            <strong>Email:</strong> ${manager.email}
+                        </div>
+                        <button class="btn btn-danger btn-sm delete-manager" data-manager-id="${manager.id}">Удалить</button>
                     </div>
-                    <button class="btn btn-danger btn-sm delete-manager" data-manager-id="${manager.id}">Удалить</button>
-                </div>
-            `).join('');
+                `).join('')}
+            `;
+            console.log('Managers list HTML populated.'); // Лог после заполнения HTML
 
             // Display admins
             const adminsList = document.querySelector('.admins-list .list-group');
-            adminsList.innerHTML = admins.map(admin => `
-                <div class="list-group-item">
-                    <strong>Логин:</strong> ${admin.login} | 
-                    <strong>Email:</strong> ${admin.email}
-                </div>
-            `).join('');
+            console.log('Admins list element:', adminsList); // Лог элемента админов
+            adminsList.innerHTML = `
+                <h4 class="bg-danger text-white rounded p-2 mb-3">Администраторы</h4>
+                ${admins.map(admin => `
+                    <div class="list-group-item">
+                        <strong>Логин:</strong> ${admin.login} | 
+                        <strong>Email:</strong> ${admin.email}
+                    </div>
+                `).join('')}
+            `;
+            console.log('Admins list HTML populated.'); // Лог после заполнения HTML
 
             // Add event listeners for delete buttons
             document.querySelectorAll('.delete-manager').forEach(button => {
                 button.addEventListener('click', async (e) => {
+                    console.log('[admin/orders.js] Delete manager button clicked.'); // Лог нажатия кнопки удаления менеджера
                     const managerId = e.target.dataset.managerId;
-                    if (confirm('Вы уверены, что хотите удалить этого менеджера?')) {
+                    // Удаляем подтверждение
+                    // if (confirm('Вы уверены, что хотите удалить этого менеджера?')) {
                         await deleteManager(managerId);
-                        location.reload()
-                    }
+                    // }
                 });
             });
+            console.log('Delete manager event listeners added.'); // Лог после добавления слушателей
         }
 
         // Function to update order status
         async function updateOrderStatus(orderId, newStatus) {
+            console.log('[admin/orders.js] updateOrderStatus function called for Order ID:', orderId, 'new status:', newStatus); // Лог входа в updateOrderStatus
             const formData = new FormData();
             formData.append('type', 'changeStatus')
             formData.append('orderId', orderId);
             formData.append('newStatus', newStatus);
+
+            console.log('Sending changeStatus POST request for Order ID:', orderId); // Лог перед запросом
 
             try {
                 const response = await fetch('/my_admin/orders/', {
                     method: 'POST',
                     body: formData
                 });
+                console.log('updateOrderStatus response status:', response.status); // Лог статуса ответа
 
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) {
+                    console.error('Network response not ok for updateOrderStatus:', response.status, response.statusText); // Лог ошибки сети
+                    throw new Error('Network response was not ok');
+                }
                 const data = await response.json();
+                console.log('updateOrderStatus response data:', data); // Лог данных ответа
                 
                 if (data.success) {
-                    // Refresh orders list
-                    await displayOrders();
+                    console.log('updateOrderStatus success: true for Order ID:', orderId); // Лог успешного ответа
+                    // Обновляем только кнопку статуса на фронте, без полной перезагрузки списка
+                    // Это делается в обработчике клика dropdownItem
                     return true;
                 } else {
+                    console.error('updateOrderStatus success: false. Error:', data.error); // Лог ошибки в ответе
                     throw new Error(data.error || 'Failed to update order status');
                 }
             } catch (error) {
-                console.error('Error updating order status:', error);
+                console.error('Error in updateOrderStatus fetch:', error); // Лог ошибки fetch
                 alert('Ошибка при обновлении статуса заказа: ' + error.message);
-                throw new Error('Error updating order status on backend');
-                return false;
+                // Не бросаем ошибку дальше, чтобы не прерывать обработку клика
+                return false; // Возвращаем false при ошибке
             }
         }
 
         // Function to display orders
         async function displayOrders() {
-            //const orders = await fetchOrders();
+            console.log('[admin/orders.js] displayOrders function called.'); // Лог входа в displayOrders
+            //const orders = await fetchOrders(); // Используем orders, которая передается через шаблон
             const ordersContainer = document.querySelector('.orders-container');
+            console.log('Orders container element:', ordersContainer); // Лог элемента контейнера заказов
             ordersContainer.innerHTML = '';
+            console.log('Orders container cleared.'); // Лог после очистки контейнера
+
+            if (!orders || orders.length === 0) {
+                ordersContainer.innerHTML = '<div class="alert alert-info">Заказов пока нет.</div>';
+                console.log('No orders found or orders array is empty.'); // Лог отсутствия заказов
+                return;
+            }
+            console.log('Found', orders.length, 'orders to display.'); // Лог количества заказов
 
             orders.forEach(order => {
+                console.log('Processing order for display:', order.id); // Лог обработки заказа
                 const orderCard = document.createElement('div');
                 orderCard.className = 'card mb-3';
+
+                // Определяем класс цвета кнопки статуса
+                let statusButtonClass = 'btn dropdown-toggle';
+
+                console.log('[admin/orders.js] Order ID:', order.id, 'Status ID from backend:', order.status); // Лог ID статуса с бэкенда
+
+                switch(parseInt(order.status)) { // Используем order.status (ID) для определения цвета
+                    case 1: // Оформлен - серый, закругленный
+                        statusButtonClass += ' btn-secondary';
+                        break;
+                    case 2: // Готов к получению - синий, закругленный
+                        statusButtonClass += ' btn-primary'; // Убираем rounded-0 для закругления
+                        break;
+                    case 3: // Получен - зеленый, закругленный
+                        statusButtonClass += ' btn-success';
+                        break;
+                    case 4: // Отказ - красный, закругленный
+                        statusButtonClass += ' btn-danger';
+                        break;
+                    default:
+                        statusButtonClass += ' btn-secondary'; // По умолчанию серый
+                }
+
                 orderCard.innerHTML = `
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Заказ #${order.id}</h5>
+                        <div>
+                            <h5 class="mb-0">Заказ #${order.id}</h5>
+                            <small class="text-muted">Дата: ${new Date(order.date).toLocaleDateString('ru-RU')}</small>
+                        </div>
                         <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" id="order-${order.id}-button" type="button" data-bs-toggle="dropdown">
+                            <button class="${statusButtonClass}" id="order-${order.id}-button" type="button" data-bs-toggle="dropdown">
                                 ${orderStatuses[order.status]}
                             </button>
                             <ul class="dropdown-menu">
@@ -260,13 +369,19 @@
                     </div>
                     <div class="card-body">
                         <p><strong>Пользователь:</strong> ${order.user_name}</p>
-                        <p><strong>Дата заказа:</strong> ${order.date}</p>
                         <p><strong>Сумма:</strong> ${order.total} ₽</p>
                         <div class="books-list">
                             <strong>Книги:</strong>
                             <ul>
                                 ${order.books.map(book => `
-                                    <li>${book.name} - ${book.price} ₽</li>
+                                    <li>
+                                        <div class="d-flex align-items-center mb-2">
+                                            ${book.image ? `<img src="${book.image}" alt="${book.name}" class="rounded me-2" style="width: 40px; height: 60px; object-fit: cover;">` : ''}
+                                            <div>
+                                                ${book.name} - ${book.price} ₽ (${book.quantity || 1} шт.)
+                                            </div>
+                                        </div>
+                                    </li>
                                 `).join('')}
                             </ul>
                         </div>
@@ -278,56 +393,91 @@
                 dropdownItems.forEach(item => {
                     item.addEventListener('click', async (e) => {
                         e.preventDefault();
-                        const newStatus = e.target.dataset.status;
-                        if (confirm(`Изменить статус заказа #${order.id} на "${orderStatuses[newStatus]}"?`)) {
-                            try{
-                                await updateOrderStatus(order.id, orderStatuses[newStatus]);
-                                document.getElementById(`order-${order.id}-button`).textContent=orderStatuses[newStatus];
+                        const newStatusId = e.target.dataset.status; // Получаем ID статуса
+                        const newStatusName = orderStatuses[newStatusId]; // Получаем имя статуса
+
+                        // Удаляем алерт и спрашиваем
+                        try{
+                            await updateOrderStatus(order.id, newStatusName);
+                            // Обновляем текст и класс кнопки статуса после успешного обновления на бэкенде
+                            const statusButton = document.getElementById(`order-${order.id}-button`);
+                            statusButton.textContent = newStatusName;
+                            // Обновляем класс кнопки
+                            statusButton.className = 'btn dropdown-toggle'; // Сбрасываем текущие классы
+                            switch(parseInt(newStatusId)) {
+                                case 1: // Оформлен - серый
+                                    statusButton.classList.add('btn-secondary');
+                                    break;
+                                case 2: // Готов к получению - синий, закругленный
+                                    statusButton.classList.add('btn-primary'); // Убираем rounded-0
+                                    break;
+                                case 3: // Получен - зеленый
+                                    statusButton.classList.add('btn-success');
+                                    break;
+                                case 4: // Отказ - красный
+                                    statusButton.classList.add('btn-danger');
+                                    break;
+                                default:
+                                    statusButton.classList.add('btn-secondary'); // По умолчанию серый
                             }
-                            catch{
-                            }
+                             console.log('Status button updated for order ID:', order.id, 'new status:', newStatusName); // Лог обновления кнопки
+                        }
+                        catch(error){
+                             console.error('Failed to update status display:', error); // Лог ошибки обновления отображения
+                            // Можно добавить индикацию ошибки на фронте, если нужно
                         }
                     });
                 });
 
                 ordersContainer.appendChild(orderCard);
             });
+            console.log('Finished displaying all orders.'); // Лог завершения отображения всех заказов
         }
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', async () => {
+            console.log('[admin/orders.js] DOM fully loaded.'); // Лог загрузки DOM
+            console.log('User Type:', userType.type); // Лог типа пользователя
+            
             // Check user type and show/hide employees tab
-            //const userType = await fetchUserType();
-            //const userType='administrator';
-            
-            console.log('User Type:', userType.type);
-            
             if (userType.type === 'administrator') {
                 document.getElementById('employees-tab-container').style.display = 'block';
+                console.log('User is administrator, displaying employees tab.'); // Лог показа вкладки сотрудников
                 // Display employees if user is admin
                 await displayEmployees();
+                console.log('Employees displayed.'); // Лог после отображения сотрудников
             }
 
             // Display initial orders
             await displayOrders();
+            console.log('Initial orders displayed.'); // Лог после отображения заказов
 
             // Handle add manager form submission
             document.getElementById('saveManagerBtn').addEventListener('click', async () => {
+                console.log('[admin/orders.js] Add Manager button clicked.'); // Лог нажатия кнопки добавления менеджера
                 const login = document.getElementById('managerLogin').value;
                 const password = document.getElementById('managerPassword').value;
                 const email = document.getElementById('managerEmail').value;
 
+                console.log('Attempting to add manager with login:', login); // Лог данных менеджера (без пароля)
+
                 if (login && password && email) {
                     const success = await addManager(login, password, email);
                     if (success) {
+                        console.log('Manager added successfully.'); // Лог успешного добавления
                         // Close modal and reset form
                         const modal = bootstrap.Modal.getInstance(document.getElementById('addManagerModal'));
                         modal.hide();
                         document.getElementById('addManagerForm').reset();
-                        location.reload();
+                        console.log('Add Manager modal closed and form reset.'); // Лог закрытия модального окна
                     }
+                     else {
+                         console.log('Failed to add manager.'); // Лог неуспешного добавления
+                     }
                 } else {
+                    console.log('Add Manager form incomplete.'); // Лог незаполненных полей
                     alert('Пожалуйста, заполните все поля');
                 }
             });
+             console.log('[admin/orders.js] DOMContentLoaded handler finished.'); // Лог завершения обработчика DOMContentLoaded
         });

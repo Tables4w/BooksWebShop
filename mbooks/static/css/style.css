@@ -412,11 +412,11 @@ nav.navbar {
   border: none;
 }
 .btn-primary, .btn-outline-primary {
-  background: #ae525f;
+  background: #ae525f; /* Возвращено переопределение синего цвета Bootstrap */
   border: none;
   color: #fff;
   font-weight: 500;
-  border-radius: 1.5rem;
+  border-radius: 1.5rem; /* Возвращено переопределение стандартного закругления Bootstrap */
   padding: 0.45rem 1.3rem;
   transition: background 0.2s;
 }
@@ -588,6 +588,22 @@ main.container {
 }
 @media (max-width: 992px) {
   #profile-menu.card { min-width: 100%; margin-bottom: 1.5rem; }
+}
+
+/* Стили для кнопки статуса заказа в админ панели (Готов к получению) */
+/* Цель: Синий цвет и стандартное закругление Bootstrap */
+.orders-container .card .dropdown .btn.btn-primary {
+    background-color: #0d6efd !important; /* Стандартный синий Bootstrap */
+    border-color: #0d6efd !important;
+    border-radius: var(--bs-border-radius, 0.375rem) !important; /* Стандартное закругление Bootstrap */
+}
+
+/* Стили для других кнопок статуса заказа в админ панели для стандартного закругления */
+/* Это нужно, так как общее правило .btn-primary переопределяет border-radius для всех кнопок .btn-primary */
+.orders-container .card .dropdown .btn.btn-secondary,
+.orders-container .card .dropdown .btn.btn-success,
+.orders-container .card .dropdown .btn.btn-danger {
+     border-radius: var(--bs-border-radius, 0.375rem) !important; /* Стандартное закругление Bootstrap */
 }
 
 

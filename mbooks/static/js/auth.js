@@ -10,16 +10,14 @@ $(document).ready(function() {
     function showError(fieldId, message) {
         const field = $(`#${fieldId}`);
         field.addClass('is-invalid');
-        // Удаляем предыдущее сообщение об ошибке, если оно есть
-        field.next('.invalid-feedback').remove();
-        // Добавляем новое сообщение об ошибке
-        field.after(`<div class="invalid-feedback">${message}</div>`);
+        const errorDiv = document.getElementById(`${fieldId}-error`);
+        if(errorDiv) errorDiv.textContent = message;
     }
 
     // Функция для очистки ошибок
     function clearErrors() {
         $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').remove();
+        $('.invalid-feedback').text('');
     }
 
     // Переключение между формами входа и регистрации
@@ -53,19 +51,12 @@ $(document).ready(function() {
     // Обработка формы входа
     $('#login-form').submit(async function(e) {
         e.preventDefault();
-        clearErrors(); // Очищаем предыдущие ошибки
-        
+        clearErrors(); // Используем общую функцию очистки ошибок
+
         const formData = new FormData();
         formData.append('type', 'login');
         formData.append('login', $('#login-email').val());
         formData.append('password', $('#login-password').val());
-
-        // Отладочная информация
-        /*
-        alert('Отправка формы входа:\n' + 
-              'Логин: ' + $('#login-email').val() + '\n' +
-              'Пароль: ' + $('#login-password').val());
-        */
 
         try {
             const response = await fetch('/auth/', {
@@ -74,105 +65,170 @@ $(document).ready(function() {
             });
 
             const data = await response.json();
-            JSON.stringify(data);
+            
 
             if (response.ok) {
                 localStorage.setItem('userData', JSON.stringify(data));
-                if(data.Success='logged as staff'){
-                    console.log(data)
+                if(data.Success === 'logged as staff'){
+                    console.log(data);
                     window.location.href = '/my_admin/orders/';
-                } else
-                    window.location.href = '/profile/';
-            } else {
-                if (data.errors) {
-                    // Вывод ошибок валидации для каждого поля
-                    Object.entries(data.errors).forEach(([field, messages]) => {
-                        const fieldId = field === 'login' ? 'login-email' : field;
-                        showError(fieldId, messages.join(', '));
-                    });
                 } else {
-                    showError('login-email', 'Неверный логин или пароль');
-                    showError('login-password', 'Неверный логин или пароль');
+                    window.location.href = '/profile/';
                 }
+            } else if (data.errors) {
+                // Вывод ошибок валидации для каждого поля
+                for (const [field, message] of Object.entries(data.errors)) {
+                    const fieldId = field === 'login' ? 'login-email' : field === 'password' ? 'login-password' : field;
+                     const input = document.getElementById(fieldId);
+                     const errorDiv = document.getElementById(`${fieldId}-error`);
+                     if (input) input.classList.add('is-invalid');
+                     if (errorDiv) errorDiv.textContent = message;
+                }
+            } else {
+                // Общая ошибка входа
+                 const loginInput = document.getElementById('login-email');
+                 const loginErrorDiv = document.getElementById('login-email-error');
+                 if(loginInput) loginInput.classList.add('is-invalid');
+                 if(loginErrorDiv) loginErrorDiv.textContent = 'Неверный логин или пароль';
+
+                 const passwordInput = document.getElementById('login-password');
+                 const passwordErrorDiv = document.getElementById('login-password-error');
+                 if(passwordInput) passwordInput.classList.add('is-invalid');
+                 if(passwordErrorDiv) passwordErrorDiv.textContent = 'Неверный логин или пароль';
             }
         } catch (error) {
             console.error('Ошибка при входе:', error);
-            alert('Произошла ошибка при попытке входа: ' + error.message);
+            // Можно добавить вывод общей ошибки в отдельный div, если нужно
         }
     });
 
     // Обработка формы регистрации
     $('#register-form').submit(async function(e) {
         e.preventDefault();
-        clearErrors(); // Очищаем предыдущие ошибки
+        console.log('Регистрация: форма отправляется');
 
-        // Проверка совпадения паролей
-        if ($('#register-password').val() !== $('#register-password2').val()) {
-            showError('register-password2', 'Пароли не совпадают');
-            return;
-        }
+        // Очищаем старые ошибки
+        ['name', 'surname', 'date', 'gender', 'email', 'login', 'password', 'password2'].forEach(field => {
+            const input = document.getElementById(`register-${field}`);
+            const errorDiv = document.getElementById(`register-${field}-error`);
+            if (input) input.classList.remove('is-invalid');
+            if (errorDiv) errorDiv.textContent = '';
+        });
 
         const formData = new FormData();
-        formData.append('type', 'register');
-        formData.append('login', $('#register-login').val());
-        formData.append('password', $('#register-password').val());
-        formData.append('gender', $('#register-gender').val());
-        formData.append('fname', $('#register-name').val());
-        formData.append('lname', $('#register-surname').val());
-        formData.append('email', $('#register-email').val());
-        formData.append('dob', $('#register-date').val());
+        formData.append('fname', document.getElementById('register-name').value);
+        formData.append('lname', document.getElementById('register-surname').value);
+        
+        // Форматируем дату перед отправкой
+        const dateInput = document.getElementById('register-date').value;
+        let formattedDate = '';
+        if (dateInput) {
+            try {
+                const date = new Date(dateInput);
+                if (!isNaN(date.getTime())) {
+                    const year = date.getFullYear();
+                    const month = ('0' + (date.getMonth() + 1)).slice(-2);
+                    const day = ('0' + date.getDate()).slice(-2);
+                    formattedDate = `${year}-${month}-${day}`;
+                } else {
+                    console.warn('Регистрация: Невалидная дата в поле.');
+                }
+            } catch (error) {
+                console.error('Регистрация: Ошибка форматирования даты:', error);
+            }
+        }
+        formData.append('dob', formattedDate);
 
-        // Отладочная информация
-        /*
-        alert('Отправка формы регистрации:\n' + 
-              'Логин: ' + $('#register-login').val() + '\n' +
-              'Email: ' + $('#register-email').val() + '\n' +
-              'Имя: ' + $('#register-name').val() + '\n' +
-              'Фамилия: ' + $('#register-surname').val() + '\n' +
-              'Пол: ' + $('#register-gender').val() + '\n' +
-              'Дата рождения: ' + $('#register-date').val());
-        */
+        formData.append('gender', document.getElementById('register-gender').value);
+        formData.append('email', document.getElementById('register-email').value);
+        formData.append('login', document.getElementById('register-login').value);
+        formData.append('password', document.getElementById('register-password').value);
+        formData.append('password2', document.getElementById('register-password2').value);
+        formData.append('type', 'register');
 
         try {
+            console.log('Регистрация: отправка данных формы:', Object.fromEntries(formData));
+            
             const response = await fetch('/auth/', {
                 method: 'POST',
                 body: formData
             });
 
-            const data = await response.json();
-            //alert('Ответ сервера: ' + JSON.stringify(data, null, 2));
+            console.log('Регистрация: получен ответ, статус:', response.status, response.statusText);
+            
+            // Сначала получаем текст ответа для отладки
+            const responseText = await response.text();
+            console.log('Регистрация: текст ответа:', responseText);
 
-            if (response.ok) {
-                //alert('Регистрация успешна!');
-                localStorage.setItem('userData', JSON.stringify(data));
-                window.location.href = '/profile/';
-            } else {
-                if (data.errors) {
-                    // Вывод ошибок валидации для каждого поля
-                    Object.entries(data.errors).forEach(([field, messages]) => {
-                        const fieldId = field === 'login' ? 'register-login' : 
-                                      field === 'password' ? 'register-password' :
-                                      field === 'fname' ? 'register-name' :
-                                      field === 'lname' ? 'register-surname' :
-                                      field === 'email' ? 'register-email' :
-                                      field === 'dob' ? 'register-date' :
-                                      `register-${field}`;
-                        showError(fieldId, messages.join(', '));
-                    });
+            let errorData;
+            try {
+                errorData = JSON.parse(responseText);
+                console.log('Регистрация: распарсенный JSON ответа:', errorData);
+            } catch (jsonError) {
+                console.error('Регистрация: ошибка парсинга JSON:', jsonError);
+                alert('Ошибка обработки ответа сервера');
+                return;
+            }
+
+            if (!response.ok) {
+                console.warn('Регистрация: Ответ не OK', response.status);
+                
+                // Mapping backend field names to frontend field names
+                const fieldMap = {
+                    'fname': 'name',
+                    'lname': 'surname',
+                    'dob': 'date',
+                    'paswd': 'password',
+                    'non_field_errors': 'general'
+                };
+
+                // Проверяем различные форматы ответа с ошибками
+                if (errorData) {
+                    console.log('Регистрация: обработка ошибок валидации');
+                    
+                    // Если ошибки пришли в корне объекта
+                    for (const [backendField, messages] of Object.entries(errorData)) {
+                        const frontendField = fieldMap[backendField] || backendField;
+                        
+                        if (frontendField === 'general') {
+                            console.error('Регистрация: Общая ошибка формы:', messages);
+                            alert(Array.isArray(messages) ? messages.join(', ') : messages);
+                            continue;
+                        }
+
+                        const input = document.getElementById(`register-${frontendField}`);
+                        const errorDiv = document.getElementById(`register-${frontendField}-error`);
+
+                        if (input && errorDiv) {
+                            input.classList.add('is-invalid');
+                            const errorMessage = Array.isArray(messages) ? messages.join(', ') : messages;
+                            errorDiv.textContent = errorMessage;
+                            console.log(`Регистрация: ошибка для поля ${frontendField}:`, errorMessage);
+                        } else {
+                            console.warn(`Регистрация: не найден элемент для поля ${backendField} (frontend: ${frontendField})`);
+                        }
+                    }
                 } else {
-                    alert('Ошибка регистрации: ' + (data.message || 'Проверьте введенные данные'));
+                    console.error('Регистрация: неожиданный формат ответа с ошибкой:', errorData);
+                    alert('Произошла ошибка при регистрации');
                 }
+            } else {
+                console.log('Регистрация: успешный ответ', errorData);
+                localStorage.setItem('userData', JSON.stringify(errorData));
+                window.location.href = '/profile/';
             }
         } catch (error) {
-            console.error('Ошибка при регистрации:', error);
-            alert('Произошла ошибка при попытке регистрации: ' + error.message);
+            console.error('Регистрация: ошибка запроса:', error);
+            alert('Произошла сетевая ошибка при регистрации');
         }
     });
 
     // Очистка ошибок при вводе
     $('input').on('input', function() {
         $(this).removeClass('is-invalid');
-        $(this).next('.invalid-feedback').remove();
+        const fieldId = this.id;
+        const errorDiv = document.getElementById(`${fieldId}-error`);
+        if(errorDiv) errorDiv.textContent = '';
     });
 
     //Вывод цены из корзины

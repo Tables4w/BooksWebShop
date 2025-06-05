@@ -166,18 +166,21 @@
               <div class="row mb-3">
                 <div class="col-md-8">
                   <label class="form-label">Номер карты</label>
-                  <input type="text" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                  <input type="text" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" required name="cardNum">
+                  <div class="invalid-feedback"></div>
                 </div>
               </div>
 
               <div class="row mb-3">
                 <div class="col-md-4">
                   <label class="form-label">Срок действия</label>
-                  <input type="text" class="form-control" placeholder="ММ/ГГ" maxlength="5" required>
+                  <input type="text" class="form-control" placeholder="ММ/ГГ" maxlength="5" required name="date">
+                  <div class="invalid-feedback"></div>
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">CVV</label>
-                  <input type="text" class="form-control" placeholder="000" maxlength="3" required>
+                  <input type="text" class="form-control" placeholder="000" maxlength="3" required name="cvv">
+                  <div class="invalid-feedback"></div>
                 </div>
               </div>
 
@@ -185,9 +188,10 @@
                 <div class="col-md-4">
                   <label class="form-label">Сумма пополнения</label>
                   <div class="input-group">
-                    <input type="number" class="form-control" min="1" placeholder="0" required>
-                    <span class="input-group-text">₽</span>
+                    <input type="number" class="form-control" min="1" placeholder="0" required name="summ">
+                    
                   </div>
+                  <div class="invalid-feedback"></div>
                 </div>
               </div>
 

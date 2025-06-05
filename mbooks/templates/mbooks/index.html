@@ -32,6 +32,40 @@
       padding: 0;
       box-sizing: border-box;
     }
+    .banner {
+      background: url("{% static 'files/fon2.png' %}") center/cover no-repeat;
+      min-height: 340px;
+      border-radius: 24px;
+      margin-top: 32px;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    .banner-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100%;
+      width: 100%;
+      padding: 32px 0;
+    }
+    .banner-image {
+      flex: 0 0 auto;
+      margin-left: 32px;
+      display: flex;
+      align-items: center;
+      height: 220px;
+    }
+    .banner-image img {
+      max-height: 220px;
+      width: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      background: white;
+      padding: 8px;
+    }
     .swiper {
       width: 100%;
       padding: 0 8px;
@@ -205,10 +239,14 @@
       <div class="banner-content">
         <div class="banner-text">
           <h2>Читайте новинку</h2>
-          <a href="book.html?id=1" class="banner-button">Купить</a>
+          <a href="{% if latest_book %}/book/{{ latest_book.id }}/{% else %}#{% endif %}" class="banner-button">Купить</a>
         </div>
         <div class="banner-image">
-          <img src="{% static 'files/bestsellers/book_on_banner.png' %}" alt="Психология личности в современном мире">
+          {% if latest_book and latest_book.cover_url %}
+            <img src="{{ latest_book.cover_url }}" alt="{{ latest_book.name }}">
+          {% else %}
+            <img src="{% static 'files/bestsellers/book_on_banner.png' %}" alt="Новинка">
+          {% endif %}
         </div>
       </div>
     </div>

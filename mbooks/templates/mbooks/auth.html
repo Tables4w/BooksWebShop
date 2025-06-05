@@ -69,25 +69,30 @@
         <div class="mb-3">
           <label for="login-email" class="form-label">Логин</label>
           <input type="text" class="form-control" id="login-email" required>
+          <div class="invalid-feedback" id="login-email-error"></div>
         </div>
         <div class="mb-3">
           <label for="login-password" class="form-label">Пароль</label>
           <input type="password" class="form-control" id="login-password" required>
+          <div class="invalid-feedback" id="login-password-error"></div>
         </div>
         <button type="submit" class="btn btn-primary w-100 mb-2">Войти</button>
       </form>
-      <form id="register-form" style="display: none;">
+      <form id="register-form" style="display: none;" novalidate>
         <div class="mb-3">
           <label for="register-name" class="form-label">Имя</label>
           <input type="text" class="form-control" id="register-name" required>
+          <div class="invalid-feedback" id="register-name-error"></div>
         </div>
         <div class="mb-3">
           <label for="register-surname" class="form-label">Фамилия</label>
           <input type="text" class="form-control" id="register-surname" required>
+          <div class="invalid-feedback" id="register-surname-error"></div>
         </div>
         <div class="mb-3">
           <label for="register-date" class="form-label">Дата рождения</label>
           <input type="date" class="form-control" id="register-date" required>
+          <div class="invalid-feedback" id="register-date-error"></div>
         </div>
         <div class="mb-3">
           <label class="form-label">Пол</label>
@@ -96,22 +101,27 @@
             <option value="м">Мужской</option>
             <option value="ж">Женский</option>
           </select>
+          <div class="invalid-feedback" id="register-gender-error"></div>
         </div>
         <div class="mb-3">
           <label for="register-email" class="form-label">Email</label>
           <input type="email" class="form-control" id="register-email" required>
+          <div class="invalid-feedback" id="register-email-error"></div>
         </div>
         <div class="mb-3">
           <label for="register-login" class="form-label">Логин</label>
           <input type="text" class="form-control" id="register-login" required>
+          <div class="invalid-feedback" id="register-login-error"></div>
         </div>
         <div class="mb-3">
           <label for="register-password" class="form-label">Пароль</label>
           <input type="password" class="form-control" id="register-password" required>
+          <div class="invalid-feedback" id="register-password-error"></div>
         </div>
         <div class="mb-3">
           <label for="register-password2" class="form-label">Подтвердите пароль</label>
           <input type="password" class="form-control" id="register-password2" required>
+          <div class="invalid-feedback" id="register-password2-error"></div>
         </div>
         <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
       </form>
