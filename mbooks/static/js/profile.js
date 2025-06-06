@@ -371,9 +371,23 @@ $(document).ready(function() {
 
   // Смена email
   $('#saveEmailBtn').on('click', function() {
+    const newEmail = $('#newEmail').val();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    // Очищаем предыдущие ошибки
+    $('#newEmail').removeClass('is-invalid');
+    $('#newEmail').next('.invalid-feedback').text('');
+
+    // Валидация email
+    if (!emailRegex.test(newEmail)) {
+      $('#newEmail').addClass('is-invalid');
+      $('#newEmail').next('.invalid-feedback').text('Пожалуйста, введите корректный email адрес');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('type', 'change_email');
-    formData.append('new_email', $('#newEmail').val());
+    formData.append('new_email', newEmail);
 
     fetch('/profile/', {
       method: 'POST',
@@ -383,32 +397,63 @@ $(document).ready(function() {
     .then(data => {
       if (data.success) {
         $('#emailModal').modal('hide');
-        // alert('Email успешно изменен!'); // Убираем алерт при успехе
-        console.log('Email успешно изменен!'); // Лог об успехе
-        // Обновляем email в localStorage
+        console.log('Email успешно изменен!');
         userData.email = formData.get('new_email');
         localStorage.setItem('userData', JSON.stringify(userData));
         $('#profile-email').text(userData.email);
       } else {
         handleErrors(data.errors);
-        // alert('Произошла ошибка при смене email'); // Убираем алерт при ошибке
-        console.error('Ошибка при смене email:', data.errors); // Лог об ошибке с сервера
       }
     })
     .catch(error => {
       console.error('Ошибка при смене email:', error);
-      // alert('Произошла ошибка при смене email'); // Убираем алерт для сетевой ошибки
-      console.error('Произошла сетевая ошибка при смене email', error); // Лог сетевой ошибки
+      $('#newEmail').addClass('is-invalid');
+      $('#newEmail').next('.invalid-feedback').text('Произошла ошибка при смене email');
     });
   });
 
   // Смена пароля
   $('#savePasswordBtn').click(function() {
+    const currentPassword = $('#currentPassword').val();
+    const newPassword = $('#newPassword').val();
+    const confirmPassword = $('#confirmPassword').val();
+    
+    // Очищаем предыдущие ошибки
+    $('.password-field').removeClass('is-invalid');
+    $('.password-field').next('.invalid-feedback').text('');
+
+    let hasErrors = false;
+
+    // Валидация текущего пароля
+    if (!currentPassword) {
+      $('#currentPassword').addClass('is-invalid');
+      $('#currentPassword').next('.invalid-feedback').text('Введите текущий пароль');
+      hasErrors = true;
+    }
+
+    // Валидация нового пароля
+    if (newPassword.length < 8) {
+      $('#newPassword').addClass('is-invalid');
+      $('#newPassword').next('.invalid-feedback').text('Пароль должен содержать минимум 8 символов');
+      hasErrors = true;
+    }
+
+    // Проверка совпадения паролей
+    if (newPassword !== confirmPassword) {
+      $('#confirmPassword').addClass('is-invalid');
+      $('#confirmPassword').next('.invalid-feedback').text('Пароли не совпадают');
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
+
     const formData = new FormData();
     formData.append('type', 'change_password');
-    formData.append('current_password', $('#currentPassword').val());
-    formData.append('new_password', $('#newPassword').val());
-    formData.append('confirm_password', $('#confirmPassword').val());
+    formData.append('current_password', currentPassword);
+    formData.append('new_password', newPassword);
+    formData.append('confirm_password', confirmPassword);
 
     fetch('/profile/', {
       method: 'POST',
@@ -418,20 +463,67 @@ $(document).ready(function() {
     .then(data => {
       if (data.success) {
         $('#passwordModal').modal('hide');
-        // alert('Пароль изменен!'); // Убираем алерт при успехе
-        console.log('Пароль успешно изменен!'); // Лог об успехе
+        console.log('Пароль успешно изменен!');
         $('#passwordChangeForm')[0].reset();
       } else {
-        handleErrors(data.errors);
-        // alert('Произошла ошибка при смене пароля'); // Убираем алерт при ошибке
-        console.error('Ошибка при смене пароля:', data.errors); // Лог об ошибке с сервера
+        // Проверяем наличие ошибки о неверном текущем пароле
+        if (data.errors && data.errors.current_password) {
+          $('#currentPassword').addClass('is-invalid');
+          $('#currentPassword').next('.invalid-feedback').text('Неверный текущий пароль');
+        } else {
+          handleErrors(data.errors);
+        }
       }
     })
     .catch(error => {
       console.error('Ошибка при смене пароля:', error);
-      // alert('Произошла ошибка при смене пароля'); // Убираем алерт для сетевой ошибки
-      console.error('Произошла сетевая ошибка при смене пароля', error); // Лог сетевой ошибки
+      $('.password-field').addClass('is-invalid');
+      $('.password-field').next('.invalid-feedback').text('Произошла ошибка при смене пароля');
     });
+  });
+
+  // Добавляем класс password-field ко всем полям пароля
+  $('#currentPassword, #newPassword, #confirmPassword').addClass('password-field');
+
+  // Реальная валидация email при вводе
+  $('#newEmail').on('input', function() {
+    const email = $(this).val();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    $(this).removeClass('is-invalid');
+    $(this).next('.invalid-feedback').text('');
+
+    if (email && !emailRegex.test(email)) {
+      $(this).addClass('is-invalid');
+      $(this).next('.invalid-feedback').text('Пожалуйста, введите корректный email адрес');
+    }
+  });
+
+  // Реальная валидация пароля при вводе
+  $('#newPassword').on('input', function() {
+    const password = $(this).val();
+    
+    $(this).removeClass('is-invalid');
+    $(this).next('.invalid-feedback').text('');
+
+    if (password && password.length < 8) {
+      $(this).addClass('is-invalid');
+      $(this).next('.invalid-feedback').text('Пароль должен содержать минимум 8 символов');
+    }
+  });
+
+  // Реальная проверка совпадения паролей
+  $('#confirmPassword').on('input', function() {
+    const confirmPassword = $(this).val();
+    const newPassword = $('#newPassword').val();
+    
+    $(this).removeClass('is-invalid');
+    $(this).next('.invalid-feedback').text('');
+
+    if (confirmPassword && confirmPassword !== newPassword) {
+      $(this).addClass('is-invalid');
+      $(this).next('.invalid-feedback').text('Пароли не совпадают');
+    }
   });
 
   // Удаление аккаунта

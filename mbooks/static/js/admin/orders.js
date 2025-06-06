@@ -111,6 +111,51 @@
         // Function to add new manager
         async function addManager(login, password, email) {
             console.log('[admin/orders.js] addManager function called.'); // Лог входа в addManager
+            
+            // Очищаем предыдущие ошибки
+            ['managerLogin', 'managerPassword', 'managerEmail'].forEach(field => {
+                const input = document.getElementById(field);
+                const errorDiv = document.getElementById(`${field}-error`);
+                if (input) input.classList.remove('is-invalid');
+                if (errorDiv) errorDiv.textContent = '';
+            });
+
+            // Валидация полей
+            let hasErrors = false;
+
+            if (!login) {
+                $('#managerLogin').addClass('is-invalid');
+                $('#managerLogin-error').text('Введите логин');
+                hasErrors = true;
+            }
+
+            if (!password) {
+                $('#managerPassword').addClass('is-invalid');
+                $('#managerPassword-error').text('Введите пароль');
+                hasErrors = true;
+            } else if (password.length < 8) {
+                $('#managerPassword').addClass('is-invalid');
+                $('#managerPassword-error').text('Пароль должен содержать минимум 8 символов');
+                hasErrors = true;
+            }
+
+            if (!email) {
+                $('#managerEmail').addClass('is-invalid');
+                $('#managerEmail-error').text('Введите email');
+                hasErrors = true;
+            } else {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    $('#managerEmail').addClass('is-invalid');
+                    $('#managerEmail-error').text('Введите корректный email адрес');
+                    hasErrors = true;
+                }
+            }
+
+            if (hasErrors) {
+                return false;
+            }
+
             const formData = new FormData();
             formData.append('type', 'addManager');
             formData.append('login', login);
@@ -149,14 +194,55 @@
                     }
                 } else {
                     console.error('addManager success: false. Error:', data.error); // Лог ошибки в ответе
-                    throw new Error(data.error || 'Failed to add manager');
+                    // Обработка ошибок с сервера
+                    if (data.errors) {
+                        Object.entries(data.errors).forEach(([field, message]) => {
+                            const fieldMap = {
+                                'login': 'managerLogin',
+                                'password': 'managerPassword',
+                                'email': 'managerEmail'
+                            };
+                            const frontendField = fieldMap[field] || field;
+                            $(`#${frontendField}`).addClass('is-invalid');
+                            $(`#${frontendField}-error`).text(Array.isArray(message) ? message[0] : message);
+                        });
+                    }
+                    return false;
                 }
             } catch (error) {
                 console.error('Error in addManager fetch:', error); // Лог ошибки fetch
-                alert('Ошибка при добавлении менеджера: ' + error.message);
+                // Показываем общую ошибку
+                $('#managerLogin').addClass('is-invalid');
+                $('#managerLogin-error').text('Произошла ошибка при добавлении менеджера');
                 return false;
             }
         }
+
+        // Добавляем реальную валидацию при вводе
+        $('#managerLogin, #managerPassword, #managerEmail').on('input', function() {
+            const fieldId = this.id;
+            $(this).removeClass('is-invalid');
+            $(`#${fieldId}-error`).text('');
+
+            // Валидация email
+            if (fieldId === 'managerEmail') {
+                const email = $(this).val();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (email && !emailRegex.test(email)) {
+                    $(this).addClass('is-invalid');
+                    $(`#${fieldId}-error`).text('Введите корректный email адрес');
+                }
+            }
+
+            // Валидация пароля
+            if (fieldId === 'managerPassword') {
+                const password = $(this).val();
+                if (password && password.length < 8) {
+                    $(this).addClass('is-invalid');
+                    $(`#${fieldId}-error`).text('Пароль должен содержать минимум 8 символов');
+                }
+            }
+        });
 
         // Function to delete manager
         async function deleteManager(managerId) {

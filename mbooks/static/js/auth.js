@@ -115,6 +115,16 @@ $(document).ready(function() {
             if (errorDiv) errorDiv.textContent = '';
         });
 
+        // Проверка совпадения паролей перед отправкой
+        const password = $('#register-password').val();
+        const password2 = $('#register-password2').val();
+
+        if (password !== password2) {
+            $('#register-password2').addClass('is-invalid');
+            $('#register-password2-error').text('Пароли не совпадают');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('fname', document.getElementById('register-name').value);
         formData.append('lname', document.getElementById('register-surname').value);
@@ -220,6 +230,22 @@ $(document).ready(function() {
         } catch (error) {
             console.error('Регистрация: ошибка запроса:', error);
             alert('Произошла сетевая ошибка при регистрации');
+        }
+    });
+
+    // Добавляем реальную проверку совпадения паролей при вводе
+    $('#register-password, #register-password2').on('input', function() {
+        const password = $('#register-password').val();
+        const password2 = $('#register-password2').val();
+        
+        // Очищаем ошибки при вводе
+        $(this).removeClass('is-invalid');
+        $(`#${this.id}-error`).text('');
+
+        // Проверяем совпадение паролей только если оба поля заполнены
+        if (password && password2 && password !== password2) {
+            $('#register-password2').addClass('is-invalid');
+            $('#register-password2-error').text('Пароли не совпадают');
         }
     });
 
