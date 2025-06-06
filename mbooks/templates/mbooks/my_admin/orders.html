@@ -13,6 +13,22 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
+        .admins-list h3::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 4px;
+            background-color: rgb(225, 97, 109);
+            margin-top: 8px;
+        }
+        .managers-list h3::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 4px;
+            background-color: rgb(117, 155, 210);
+            margin-top: 8px;
+        }
     </style>
 </head>
 <script> const orders = {{ orders_json|safe }}; </script>

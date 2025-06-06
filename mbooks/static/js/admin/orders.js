@@ -247,7 +247,7 @@
             console.log('Managers list element:', managersList); // Лог элемента менеджеров
             if (managersList) {
                 managersList.innerHTML = `
-                    <h4 class="bg-primary text-white rounded p-2 mb-3">Менеджеры</h4>
+                    <h4 class="bg-primary text-white rounded p-2 mb-3" style="background-color: rgb(117, 155, 210) !important;">Менеджеры</h4>
                     ${managers && managers.length > 0 ? managers.map(manager => `
                         <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-manager-id="${manager.id}" style="color: #000; transition: opacity 0.3s ease;">
                             <div>
@@ -266,7 +266,7 @@
             console.log('Admins list element:', adminsList); // Лог элемента админов
             if (adminsList) {
                 adminsList.innerHTML = `
-                    <h4 class="bg-danger text-white rounded p-2 mb-3">Администраторы</h4>
+                    <h4 class="bg-danger text-white rounded p-2 mb-3" style="background-color: rgb(225, 97, 109) !important;">Администраторы</h4>
                     ${admins && admins.length > 0 ? admins.map(admin => `
                         <div class="list-group-item">
                             <strong>Логин:</strong> ${admin.login || admin.username} | 
