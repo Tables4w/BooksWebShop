@@ -54,12 +54,14 @@ $(document).ready(function() {
       let yearOk = true;
       if (!isNaN(yearFrom)) yearOk = book.year >= yearFrom;
       if (!isNaN(yearTo)) yearOk = yearOk && book.year <= yearTo;
+      /*
       let searchOk = true;
       if (search) {
         searchOk = (book.title && book.title.toLowerCase().includes(search)) ||
                    (book.author && book.author.toLowerCase().includes(search));
       }
-      return genreOk && authorOk && yearOk && searchOk;
+      */
+      return genreOk && authorOk && yearOk; //&& searchOk;
     });
   }
 
@@ -78,7 +80,7 @@ $(document).ready(function() {
             <img src="${book.image}" alt="${book.title}" class="book-cover card-img-top" />
             <div class="card-body d-flex flex-column">
               <div class="book-title mb-1">${book.title}</div>
-              <div class="text-muted mb-2">${book.author || ''}</div>
+              <div class="text-muted mb-2">${Array.isArray(book.author) ? book.author.join(', ') : ''}</div>
               <div class="book-price mb-2">${book.price} ₽</div>
               <button class="btn btn-outline-primary mt-auto w-100 buy-btn" data-id="${book.id}">Купить</button>
             </div>
@@ -92,15 +94,27 @@ $(document).ready(function() {
   // --- Добавление книги в корзину ---
   function addToCart(bookId) {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let selectedItems = JSON.parse(localStorage.getItem('selectedItems')) || [];
     const book = books.find(b => b.id === bookId);
     if (book) {
-      cart.push({
-        id: book.id,
-        title: book.title,
-        price: book.price,
-        image: book.image
-      });
+      const existingItem = cart.find(item => item.id === bookId);
+
+      if (existingItem) {
+        existingItem.quantity = (existingItem.quantity || 1) + 1;
+      } else {
+        cart.push({
+          id: bookId,
+          title: book.title,
+          price: book.price,
+          author: book.author,
+          image: book.image,
+          quantity: 1
+        });
+        selectedItems.push(cart.length - 1);
+      }
+      
       localStorage.setItem('cart', JSON.stringify(cart));
+      localStorage.setItem('selectedItems', JSON.stringify(selectedItems));
       updateCartTotal();
     }
   }
@@ -108,8 +122,11 @@ $(document).ready(function() {
   // --- Обновление суммы в корзине ---
   function updateCartTotal() {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const total = cart.reduce((sum, item) => sum + parseInt(item.price), 0);
-    $('#cart-total').text(`${total} ₽`);
+    const total = cart.reduce((sum, item) => {
+      const qty = item.quantity || 1;
+      return sum + parseInt(item.price) * qty;
+    }, 0);
+    $('#cart-total').text(total + ' ₽');
   }
 
   // --- События фильтров и поиска ---
@@ -119,9 +136,11 @@ $(document).ready(function() {
   $(document).on('input', '#year-from, #year-to', function() {
     renderBooks(filterBooks());
   });
+  /*
   $(document).on('input', "input[type='search']", function() {
     renderBooks(filterBooks());
   });
+  */
 
   // --- Обработчик кнопки "Купить" ---
   $(document).on('click', '.buy-btn', function(e) {
@@ -134,7 +153,7 @@ $(document).ready(function() {
   $(document).on('click', '.book-card', function(e) {
     if (!$(e.target).hasClass('buy-btn')) {
       const bookId = $(this).data('id');
-      window.location.href = `book.html?id=${bookId}`;
+      window.location.href = `/book/${bookId}/`;
     }
   });
 

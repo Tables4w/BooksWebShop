@@ -18,19 +18,165 @@
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
   />
 
-  <!-- Slick CSS -->
+  <!-- Swiper CSS -->
   <link 
-  rel="stylesheet" 
-  type="text/css" 
-  href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"
-/>
-<link 
-  rel="stylesheet" 
-  type="text/css" 
-  href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"
-/>
+    rel="stylesheet" 
+    href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+  />
+
   <!-- Our CSS -->
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <style>
+    .book-carousel {
+      margin: 0 auto !important;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .banner {
+      background: url("{% static 'files/fon2.png' %}") center/cover no-repeat;
+      min-height: 340px;
+      border-radius: 24px;
+      margin-top: 32px;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    .banner-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100%;
+      width: 100%;
+      padding: 32px 0;
+    }
+    .banner-image {
+      flex: 0 0 auto;
+      margin-left: 32px;
+      display: flex;
+      align-items: center;
+      height: 220px;
+    }
+    .banner-image img {
+      max-height: 220px;
+      width: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      background: white;
+      padding: 8px;
+    }
+    .swiper {
+      width: 100%;
+      padding: 0 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .swiper-wrapper {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+    .swiper-slide {
+      height: auto;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+    .book-card {
+      padding: 8px !important;
+      text-align: center;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      max-width: 100% !important;
+      width: 100%;
+      box-sizing: border-box;
+      justify-content: space-between;
+    }
+    .book-card img {
+      max-height: 160px !important;
+      width: auto !important;
+      max-width: 100% !important;
+      object-fit: contain;
+      margin: 0 auto 8px auto;
+    }
+    .book-card h5 {
+      color: #333;
+      margin-top: 0 !important;
+      margin-bottom: 4px !important;
+      font-size: 0.9rem !important;
+      height: 2.4em;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      flex-grow: 0;
+      line-height: 1.2 !important;
+    }
+    .book-card p {
+      margin-bottom: 4px !important;
+      font-size: 0.9rem !important;
+      line-height: 1.2 !important;
+      flex-grow: 0;
+    }
+    .book-card .btn {
+      padding: 8px 16px !important;
+      font-size: 1rem !important;
+      margin-top: auto !important;
+      line-height: 1.5 !important;
+      width: 90% !important;
+      min-width: auto !important;
+      max-width: none !important;
+      display: block !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      flex-shrink: 0;
+    }
+    .swiper-button-next,
+    .swiper-button-prev {
+      width: 40px !important;
+      height: 40px !important;
+      background: rgba(255, 255, 255, 0.9) !important;
+      border-radius: 50% !important;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+      transition: background 0.3s ease;
+    }
+    .swiper-button-next:hover,
+    .swiper-button-prev:hover {
+      background: white !important;
+    }
+    .swiper-button-next:after,
+    .swiper-button-prev:after {
+      font-size: 20px !important;
+      color: #6c4ed9 !important;
+    }
+    .swiper-pagination-bullet {
+      width: 10px !important;
+      height: 10px !important;
+      background: #6c4ed9 !important;
+      opacity: 0.5;
+    }
+    .swiper-pagination-bullet-active {
+      opacity: 1;
+    }
+    .swiper-pagination {
+      display: none !important;
+    }
+
+    @media (max-width: 1000px) {
+      .swiper-slide {
+        width: 50% !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .swiper-slide {
+        width: 100% !important;
+      }
+    }
+  </style>
 	
 </head>
 <body>
@@ -40,7 +186,7 @@
     <!-- Логотип и кнопка мобильного меню -->
     <div class="d-flex align-items-center">
       <div class="logo me-3">
-        <img src="files/header/logo.png" alt="Moore Books">  
+        <img src="{% static 'files/header/logo.png' %}" alt="Moore Books">  
       </div>
       
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -70,7 +216,7 @@
       <!-- Иконки корзины и пользователя -->
      <ul class="navbar-nav align-items-center">
         <li class="nav-item position-relative d-flex align-items-center">
-          <a class="nav-link d-flex align-items-center" href="basket.html">
+          <a class="nav-link d-flex align-items-center" href="/basket/">
             <i class="bi bi-cart" style="font-size:  1.78rem;"></i>
             <span id="cart-total" class="ms-2 badge rounded-pill" style="font-size: 1rem; position: static; transform: none;">0 ₽</span>
           </a>
@@ -78,7 +224,7 @@
  <li class="nav-item ms-1">
     <a class="nav-link p-0 d-flex align-items-center justify-content-center" href="auth.html" title="Войти"
 	style="width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease;">
-      <img src="files/header/user.png" alt="Войти" style="width: auto; height: auto; object-fit: cover;">
+      <img src="{% static 'files/header/user.png' %}" alt="Войти" style="width: auto; height: auto; object-fit: cover;">
     </a>
   </li>   
       </ul>
@@ -96,10 +242,14 @@
       <div class="banner-content">
         <div class="banner-text">
           <h2>Читайте новинку</h2>
-          <a href="book.html?id=1" class="banner-button">Купить</a>
+          <a href="{% if latest_book %}/book/{{ latest_book.id }}/{% else %}#{% endif %}" class="banner-button">Купить</a>
         </div>
         <div class="banner-image">
-          <img src="files/bestsellers/book_on_banner.png" alt="Психология личности в современном мире">
+          {% if latest_book and latest_book.cover_url %}
+            <img src="{{ latest_book.cover_url }}" alt="{{ latest_book.name }}">
+          {% else %}
+            <img src="{% static 'files/bestsellers/book_on_banner.png' %}" alt="Новинка">
+          {% endif %}
         </div>
       </div>
     </div>
@@ -107,13 +257,24 @@
 </div>
 
 <div class="container my-5">
-  <h2 class="mb-4">Популярные книги</h2>
-  <div class="book-carousel">
-    <!-- Книги будут здесь -->
+  <h2 class="mb-4">Новинки</h2>
+  <div class="swiper" id="new-books-carousel">
+    <div class="swiper-wrapper">
+      <!-- Книги будут добавлены через JavaScript -->
+    </div>
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
   </div>
-<h2 class="mb-4">Bestsellers</h2>
-  <div class="book-carousel">
-    <!-- Книги будут здесь -->
+
+  <h2 class="mb-4 mt-5">Бестселлеры</h2>
+  <div class="swiper" id="bestsellers-carousel">
+    <div class="swiper-wrapper">
+      <!-- Книги будут добавлены через JavaScript -->
+    </div>
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
   </div>
 </div>
   
@@ -129,22 +290,22 @@
       <div class="col-md-3 order-2 order-md-3 mt-3 mt-md-0">
         <h3>Контакты</h3>
         <div class="contact-row d-flex align-items-center mb-2">
-          <img class="footer-icon" src="files/footer/mail.png" alt="Email">
+          <img class="footer-icon" src="{% static 'files/footer/mail.png' %}" alt="Email">
           <span> support@moorebooks.ru</span>
         </div>
         <div class="contact-row d-flex align-items-center mb-2">
-          <img class="footer-icon" src="files/footer/location.png" alt="Location">
+          <img class="footer-icon" src="{% static 'files/footer/location.png' %}" alt="Location">
           <span> Ставропольская 219</span>
         </div>
         <div class="contact-row d-flex align-items-center mb-2">
-          <img class="footer-icon" src="files/footer/phone.png" alt="Phone">
+          <img class="footer-icon" src="{% static 'files/footer/phone.png' %}" alt="Phone">
           <span> +7 (900) 123-45-67</span>
         </div>
       </div>
 
     <div class="col-md-2 order-last order-md-1 g-0">
   <div class="logo">
-    <img src="files/footer/logo.png" alt="Moore Books" style="max-height: 170px; width: auto;" class="img-fluid">
+    <img src="{% static 'files/footer/logo.png' %}" alt="Moore Books" style="max-height: 170px; width: auto;" class="img-fluid">
   </div>
 </div>
     </div>
@@ -157,12 +318,27 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Slick JS -->
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <!-- Books Data -->
-  <script src="{% 'js/books-data.js' %}"></script>
+  <script>
+    window.books_bs = JSON.parse('{{ bestseller_books_json|safe }}');
+    window.books_new = JSON.parse('{{ new_books_json|safe }}');
+  </script>
   <!-- Our js -->
-  <script src="{% 'js/script.js' %}"></script>
-
+  <script src="{% static 'js/script.js' %}"></script>
+  <script>
+    // Убедимся, что Swiper инициализируется после загрузки всех скриптов
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof Swiper !== 'undefined') {
+        const newBooksSwiper = new Swiper('#new-books-carousel', swiperConfig);
+        const bestsellersSwiper = new Swiper('#bestsellers-carousel', swiperConfig);
+        
+        // Запускаем автопрокрутку
+        newBooksSwiper.autoplay.start();
+        bestsellersSwiper.autoplay.start();
+      }
+    });
+  </script>
 </body>
 </html>
