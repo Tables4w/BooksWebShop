@@ -47,7 +47,7 @@
         window.location.replace('/my_admin/catalog/');
       }
     } catch (error) {
-      console.error('Error:', error);
+      //console.error('Error:', error);
       window.location.replace('/my_admin/catalog/');
     }
   }
@@ -69,7 +69,7 @@
           window.location.replace('/my_admin/catalog/');
         }
       } catch (error) {
-        console.error('Error:', error);
+        //console.error('Error:', error);
         window.location.replace('/my_admin/catalog/');
       }
     }
@@ -110,11 +110,11 @@
           localStorage.removeItem('userBalance');
           window.location.href = '/auth/';
         } else {
-          console.error('Ошибка выхода. Статус:', response.status);
+          //console.error('Ошибка выхода. Статус:', response.status);
           window.location.href = '/auth/';
         }
       } catch (error) {
-        console.error('Ошибка при fetch logout:', error);
+        //console.error('Ошибка при fetch logout:', error);
         window.location.href = '/auth/';
       }
     });

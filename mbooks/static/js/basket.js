@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  console.log('[basket.js] Document is ready. Script started.'); // Лог начала скрипта
+  //console.log('[basket.js] Document is ready. Script started.'); // Лог начала скрипта
   // Загрузка корзины при открытии страницы
   loadCart();
   updateCartTotal();
@@ -165,45 +165,45 @@ function updateCartTotal() {
 
 // Обработчик кнопки оформления заказа
 $('#checkout-btn').click(function() {
-  console.log('[basket.js] Checkout button click handler entered.'); // Лог входа в обработчик
-  console.log('[basket.js] Checkout button clicked'); // Лог нажатия кнопки
+  //console.log('[basket.js] Checkout button click handler entered.'); // Лог входа в обработчик
+  //console.log('[basket.js] Checkout button clicked'); // Лог нажатия кнопки
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  console.log('[basket.js] Current cart:', cart); // Лог текущей корзины
+  //console.log('[basket.js] Current cart:', cart); // Лог текущей корзины
   
-  console.log('[basket.js] Checking if cart is empty.'); // Лог перед проверкой пустой корзины
+  //console.log('[basket.js] Checking if cart is empty.'); // Лог перед проверкой пустой корзины
   if (cart.length === 0) {
-    console.log('[basket.js] Cart is empty. Returning.'); // Лог пустой корзины
+    //console.log('[basket.js] Cart is empty. Returning.'); // Лог пустой корзины
     return;
   }
   
-  console.log('[basket.js] Checking selected items.'); // Лог перед проверкой выбранных товаров
+  //console.log('[basket.js] Checking selected items.'); // Лог перед проверкой выбранных товаров
   // Получаем только выбранные товары
   const selectedItems = [];
   $('.item-checkbox:checked').each(function() {
     const index = $(this).data('index');
     selectedItems.push(cart[index]);
   });
-  console.log('[basket.js] Selected items:', selectedItems); // Лог выбранных товаров
+  //console.log('[basket.js] Selected items:', selectedItems); // Лог выбранных товаров
 
-  console.log('[basket.js] Checking if no items selected.'); // Лог перед проверкой отсутствия выбранных товаров
+  //console.log('[basket.js] Checking if no items selected.'); // Лог перед проверкой отсутствия выбранных товаров
   if (selectedItems.length === 0) {
-    console.log('[basket.js] No items selected. Returning.'); // Лог отсутствия выбранных товаров
+    //console.log('[basket.js] No items selected. Returning.'); // Лог отсутствия выбранных товаров
     return;
   }
 
-  console.log('[basket.js] Calculating total price and checking balance.'); // Лог перед проверкой баланса
+  //console.log('[basket.js] Calculating total price and checking balance.'); // Лог перед проверкой баланса
   const total = getTotalPrice();
   const balance = parseInt(localStorage.getItem('userBalance')) || 0;
-  console.log('[basket.js] Total price:', total, 'Balance:', balance); // Лог суммы и баланса
+  //console.log('[basket.js] Total price:', total, 'Balance:', balance); // Лог суммы и баланса
 
   if (balance < total) {
-    console.log('[basket.js] Insufficient balance. Redirecting.'); // Лог недостаточного баланса
+    //console.log('[basket.js] Insufficient balance. Redirecting.'); // Лог недостаточного баланса
     alert('Недостаточно средств. Пожалуйста, пополните баланс.');
     window.location.href = '/profile/';
     return;
   }
   
-  console.log('[basket.js] Creating order data.'); // Лог перед созданием данных заказа
+  //console.log('[basket.js] Creating order data.'); // Лог перед созданием данных заказа
   // Создаем данные заказа в правильном формате
   const orderData = {
     items: selectedItems.map(item => ({
@@ -212,9 +212,9 @@ $('#checkout-btn').click(function() {
       quantity: item.quantity || 1
     }))
   };
-  console.log('[basket.js] Sending order data:', orderData); // Лог отправляемых данных
+  //console.log('[basket.js] Sending order data:', orderData); // Лог отправляемых данных
 
-  console.log('[basket.js] About to send fetch POST request to /basket/'); // Лог перед fetch
+  //console.log('[basket.js] About to send fetch POST request to /basket/'); // Лог перед fetch
   fetch('/basket/', {
     method: 'POST',
     headers: {
@@ -223,14 +223,14 @@ $('#checkout-btn').click(function() {
     body: JSON.stringify(orderData)
   })
   .then(response => {
-    console.log('[basket.js] Server response status:', response.status); // Лог статуса ответа
+    //console.log('[basket.js] Server response status:', response.status); // Лог статуса ответа
     if (!response.ok) {
       throw new Error('Ошибка при отправке заказа');
     }
     return response.json();
   })
   .then(data => {
-    console.log('[basket.js] Order created successfully:', data); // Лог успешного создания заказа
+    //console.log('[basket.js] Order created successfully:', data); // Лог успешного создания заказа
     // Очищаем корзину
     const remainingItems = cart.filter((item, index) => 
       !$('.item-checkbox:checked').toArray().some(cb => $(cb).data('index') === index)
@@ -247,17 +247,17 @@ $('#checkout-btn').click(function() {
     loadCart();
     updateBalanceDisplay();
     
-    console.log('[basket.js] Order successful. Delaying redirect to profile.'); // Лог перед задержкой
+    //console.log('[basket.js] Order successful. Delaying redirect to profile.'); // Лог перед задержкой
     // Перенаправляем на страницу профиля с небольшой задержкой
     setTimeout(() => {
-      console.log('[basket.js] Redirecting to profile now.'); // Лог перед редиректом
+      //console.log('[basket.js] Redirecting to profile now.'); // Лог перед редиректом
       window.location.href = '/profile/';
     }, 1000); // Уменьшена задержка до 1000 миллисекунд
   })
   .catch(error => {
-    console.error('[basket.js] Error creating order:', error); // Лог ошибки
+    //console.error('[basket.js] Error creating order:', error); // Лог ошибки
     alert('Произошла ошибка при создании заказа. Пожалуйста, попробуйте снова.');
   });
   
-  console.log('[basket.js] Checkout button click handler finished.'); // Лог завершения обработчика
+  //console.log('[basket.js] Checkout button click handler finished.'); // Лог завершения обработчика
 }); 

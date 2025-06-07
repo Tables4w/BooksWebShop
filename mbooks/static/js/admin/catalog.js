@@ -138,11 +138,11 @@ document.getElementById('admlogout').addEventListener('click', async function ()
       localStorage.removeItem('userBalance');
       window.location.href = '/auth/';
     } else {
-      console.error('Ошибка выхода. Статус:', response.status);
+      //console.error('Ошибка выхода. Статус:', response.status);
       alert('Ошибка выхода. Попробуйте снова.');
     }
   } catch (error) {
-    console.error('Ошибка при fetch logout:', error);
+    //console.error('Ошибка при fetch logout:', error);
     alert('Произошла ошибка при выходе.');
   }
 });

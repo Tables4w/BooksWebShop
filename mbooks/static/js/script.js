@@ -148,13 +148,13 @@ $(document).ready(function() {
 
   // Добавление книг в карусель новинок
   if (typeof books_new !== 'undefined' && books_new.length > 0) {
-    console.log('New books array:', books_new);
+    //console.log('New books array:', books_new);
     addBooksToSpecificCarousel('new-books-carousel', books_new);
   }
 
   // Добавление книг в карусель бестселлеров
   if (typeof books_bs !== 'undefined' && books_bs.length > 0) {
-    console.log('Bestsellers array:', books_bs);
+    //console.log('Bestsellers array:', books_bs);
     addBooksToSpecificCarousel('bestsellers-carousel', books_bs);
   }
 

@@ -10,11 +10,11 @@ $(document).ready(function() {
 
   // Проверяем существование кнопки выхода
   const logoutBtn = $('#confirmLogoutBtn');
-  console.log('Logout button found:', logoutBtn.length > 0); // Debug log
+  //console.log('Logout button found:', logoutBtn.length > 0); // Debug log
 
   if (logoutBtn.length > 0) {
     logoutBtn.on('click', function(e) {
-      //console.log('Logout button clicked'); // Debug log
+      ////console.log('Logout button clicked'); // Debug log
       e.preventDefault();
       e.stopPropagation();
       //alert('Logout button clicked'); // Debug alert
@@ -41,14 +41,14 @@ $(document).ready(function() {
             }
           })
           .catch(error => {
-            console.error('Ошибка при выходе:', error);
+            //console.error('Ошибка при выходе:', error);
           });
       } catch (error) {
         alert('Error during logout: ' + error.message); // Debug alert
       }
     });
   } else {
-    console.error('Logout button not found in DOM'); // Debug log
+    //console.error('Logout button not found in DOM'); // Debug log
   }
 
   // Заполняем поля профиля данными пользователя
@@ -85,7 +85,7 @@ $(document).ready(function() {
       localStorage.setItem('userData', JSON.stringify(response));
     },
     error: function(xhr, status, error) {
-      console.error('Ошибка при получении данных профиля:', error);
+      //console.error('Ошибка при получении данных профиля:', error);
     }
   });
   */
@@ -109,30 +109,30 @@ $(document).ready(function() {
   currentOrdersList.empty();
   completedOrdersList.empty();
 
-  console.log('Fetching user orders from /getuserorders/'); // Лог перед запросом
+  //console.log('Fetching user orders from /getuserorders/'); // Лог перед запросом
 
   fetch('/getuserorders/')
     .then(response => {
-      console.log('Received response for user orders', response.status); // Лог статуса ответа
+      //console.log('Received response for user orders', response.status); // Лог статуса ответа
       if (!response.ok) {
-        console.error('Ошибка HTTP при получении заказов:', response.status, response.statusText); // Лог ошибки HTTP
+        //console.error('Ошибка HTTP при получении заказов:', response.status, response.statusText); // Лог ошибки HTTP
         throw new Error('Ошибка при получении заказов: ' + response.statusText);
       }
       return response.json();
     })
     .then(orders => {
-      console.log('User orders data received:', orders); // Лог полученных данных
+      //console.log('User orders data received:', orders); // Лог полученных данных
 
       if (orders.length === 0) {
         currentOrdersList.html('<div class="alert alert-info">У вас пока нет текущих заказов.</div>');
         completedOrdersList.html('<div class="alert alert-info">У вас пока нет завершенных заказов.</div>');
-        console.log('No user orders found.'); // Лог пустого списка
+        //console.log('No user orders found.'); // Лог пустого списка
         return;
       }
 
       orders.forEach((order, index) => {
         const orderHtml = createOrderCard(order, order.id);
-        console.log('Processing order:', order.id, 'status:', order.status); // Лог обработки каждого заказа
+        //console.log('Processing order:', order.id, 'status:', order.status); // Лог обработки каждого заказа
         if (order.status === 'Оформлен' || order.status==='Готов к получению') {
           currentOrdersList.append(orderHtml);
         } else if(order.status === 'Получен' || order.status==='Отказ') {
@@ -146,10 +146,10 @@ $(document).ready(function() {
       if (completedOrdersList.children().length === 0) {
         completedOrdersList.html('<div class="alert alert-info">У вас пока нет завершенных заказов.</div>');
       }
-      console.log('User orders display updated.'); // Лог завершения отображения
+      //console.log('User orders display updated.'); // Лог завершения отображения
     })
     .catch(error => {
-      console.error('Ошибка загрузки пользовательских заказов:', error); // Лог ошибки в catch
+      //console.error('Ошибка загрузки пользовательских заказов:', error); // Лог ошибки в catch
       currentOrdersList.html('<div class="alert alert-danger">Не удалось загрузить заказы.</div>');
       completedOrdersList.html('<div class="alert alert-danger">Не удалось загрузить заказы.</div>');
     });
@@ -212,7 +212,7 @@ $(document).ready(function() {
   // Обработка отправки формы пополнения баланса
   $('#balanceForm').on('submit', function(e) {
     e.preventDefault();
-    console.log('Form submitted'); // Debug log
+    //console.log('Form submitted'); // Debug log
     
     // Очищаем предыдущие ошибки
     $(this).find('.is-invalid').removeClass('is-invalid');
@@ -229,7 +229,7 @@ $(document).ready(function() {
     const cvv = cvvInput.val();
     const sum = parseInt(sumInput.val());
 
-    console.log('Form data:', { cardNum, date, cvv, sum }); // Debug log
+    //console.log('Form data:', { cardNum, date, cvv, sum }); // Debug log
 
     let hasErrors = false;
 
@@ -294,7 +294,7 @@ $(document).ready(function() {
       }
     })
     .catch(error => {
-      console.error('Ошибка при пополнении', error);
+      //console.error('Ошибка при пополнении', error);
       // alert('Произошла ошибка при пополнении'); // Убираем алерт для сетевых ошибок
       // Можно добавить вывод общей ошибки в отдельный div, если нужно
     });
@@ -321,7 +321,7 @@ $(document).ready(function() {
 
   // Форматирование срока действия карты
   $('#balanceForm input[placeholder="ММ/ГГ"]').on('input', function() {
-    console.log('Input event on date field'); // Добавлен лог
+    //console.log('Input event on date field'); // Добавлен лог
     let value = $(this).val().replace(/\D/g, '');
     if(value.length > 2) {
       value = value.substring(0, 2) + '/' + value.substring(2, 4);
@@ -332,7 +332,7 @@ $(document).ready(function() {
 
   // Только цифры для CVV
   $('#balanceForm input[placeholder="000"]').on('input', function() {
-    console.log('Input event on CVV field'); // Добавлен лог
+    //console.log('Input event on CVV field'); // Добавлен лог
     $(this).val($(this).val().replace(/\D/g, ''));
     // Убедимся, что здесь нет алертов
   });
@@ -364,7 +364,7 @@ $(document).ready(function() {
       }
     })
     .catch(error => {
-      console.error('Ошибка при обновлении профиля:', error);
+      //console.error('Ошибка при обновлении профиля:', error);
       alert('Произошла ошибка при обновлении данных');
     });
   });
@@ -397,7 +397,7 @@ $(document).ready(function() {
     .then(data => {
       if (data.success) {
         $('#emailModal').modal('hide');
-        console.log('Email успешно изменен!');
+        //console.log('Email успешно изменен!');
         userData.email = formData.get('new_email');
         localStorage.setItem('userData', JSON.stringify(userData));
         $('#profile-email').text(userData.email);
@@ -406,7 +406,7 @@ $(document).ready(function() {
       }
     })
     .catch(error => {
-      console.error('Ошибка при смене email:', error);
+      //console.error('Ошибка при смене email:', error);
       $('#newEmail').addClass('is-invalid');
       $('#newEmail').next('.invalid-feedback').text('Произошла ошибка при смене email');
     });
@@ -463,7 +463,7 @@ $(document).ready(function() {
     .then(data => {
       if (data.success) {
         $('#passwordModal').modal('hide');
-        console.log('Пароль успешно изменен!');
+        //console.log('Пароль успешно изменен!');
         $('#passwordChangeForm')[0].reset();
       } else {
         // Проверяем наличие ошибки о неверном текущем пароле
@@ -476,7 +476,7 @@ $(document).ready(function() {
       }
     })
     .catch(error => {
-      console.error('Ошибка при смене пароля:', error);
+      //console.error('Ошибка при смене пароля:', error);
       $('.password-field').addClass('is-invalid');
       $('.password-field').next('.invalid-feedback').text('Произошла ошибка при смене пароля');
     });
@@ -530,7 +530,7 @@ $(document).ready(function() {
   $('#confirmDeleteBtn').on('click', function(e) {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Confirm delete button clicked'); // Добавил лог
+    //console.log('Confirm delete button clicked'); // Добавил лог
     
     const formData = new FormData();
     formData.append('type', 'delete_account');
@@ -551,12 +551,12 @@ $(document).ready(function() {
             window.location.href = '/auth/';
         } else {
             // handleErrors(data.errors); // Оставил обработку ошибок через alert, как было ранее, чтобы не потерять функционал
-            console.error('Server returned an error:', data.errors); // Добавил лог ошибок с сервера
+            //console.error('Server returned an error:', data.errors); // Добавил лог ошибок с сервера
             alert('Ошибка при удалении аккаунта: ' + JSON.stringify(data.errors)); // Показываем ошибки с сервера
         }
     })
     .catch(error => {
-        console.error('Ошибка при удалении профиля:', error);
+        //console.error('Ошибка при удалении профиля:', error);
         alert('Произошла ошибка при удалении аккаунта');
     });
   });
@@ -577,7 +577,7 @@ $(document).ready(function() {
       } else if (typeof messages === 'string') {
          input.next('.invalid-feedback').text(messages);
       } else {
-         console.error('Неожиданный формат сообщения об ошибке для поля', field, messages); // Логируем неожиданный формат
+         //console.error('Неожиданный формат сообщения об ошибке для поля', field, messages); // Логируем неожиданный формат
       }
       // alert(field+" "+messages); // Удаляем алерт здесь
     });

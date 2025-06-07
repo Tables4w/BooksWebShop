@@ -70,7 +70,7 @@ $(document).ready(function() {
             if (response.ok) {
                 localStorage.setItem('userData', JSON.stringify(data));
                 if(data.Success === 'logged as staff'){
-                    console.log(data);
+                    //console.log(data);
                     window.location.href = '/my_admin/orders/';
                 } else {
                     window.location.href = '/profile/';
@@ -97,7 +97,7 @@ $(document).ready(function() {
                  if(passwordErrorDiv) passwordErrorDiv.textContent = 'Неверный логин или пароль';
             }
         } catch (error) {
-            console.error('Ошибка при входе:', error);
+            //console.error('Ошибка при входе:', error);
             // Можно добавить вывод общей ошибки в отдельный div, если нужно
         }
     });
@@ -105,7 +105,7 @@ $(document).ready(function() {
     // Обработка формы регистрации
     $('#register-form').submit(async function(e) {
         e.preventDefault();
-        console.log('Регистрация: форма отправляется');
+        //console.log('Регистрация: форма отправляется');
 
         // Очищаем старые ошибки
         ['name', 'surname', 'date', 'gender', 'email', 'login', 'password', 'password2'].forEach(field => {
@@ -141,10 +141,10 @@ $(document).ready(function() {
                     const day = ('0' + date.getDate()).slice(-2);
                     formattedDate = `${year}-${month}-${day}`;
                 } else {
-                    console.warn('Регистрация: Невалидная дата в поле.');
+                    //console.warn('Регистрация: Невалидная дата в поле.');
                 }
             } catch (error) {
-                console.error('Регистрация: Ошибка форматирования даты:', error);
+                //console.error('Регистрация: Ошибка форматирования даты:', error);
             }
         }
         formData.append('dob', formattedDate);
@@ -157,31 +157,31 @@ $(document).ready(function() {
         formData.append('type', 'register');
 
         try {
-            console.log('Регистрация: отправка данных формы:', Object.fromEntries(formData));
+            //console.log('Регистрация: отправка данных формы:', Object.fromEntries(formData));
             
             const response = await fetch('/auth/', {
                 method: 'POST',
                 body: formData
             });
 
-            console.log('Регистрация: получен ответ, статус:', response.status, response.statusText);
+            //console.log('Регистрация: получен ответ, статус:', response.status, response.statusText);
             
             // Сначала получаем текст ответа для отладки
             const responseText = await response.text();
-            console.log('Регистрация: текст ответа:', responseText);
+            //console.log('Регистрация: текст ответа:', responseText);
 
             let errorData;
             try {
                 errorData = JSON.parse(responseText);
-                console.log('Регистрация: распарсенный JSON ответа:', errorData);
+                //console.log('Регистрация: распарсенный JSON ответа:', errorData);
             } catch (jsonError) {
-                console.error('Регистрация: ошибка парсинга JSON:', jsonError);
+                //console.error('Регистрация: ошибка парсинга JSON:', jsonError);
                 alert('Ошибка обработки ответа сервера');
                 return;
             }
 
             if (!response.ok) {
-                console.warn('Регистрация: Ответ не OK', response.status);
+                //console.warn('Регистрация: Ответ не OK', response.status);
                 
                 // Mapping backend field names to frontend field names
                 const fieldMap = {
@@ -194,14 +194,14 @@ $(document).ready(function() {
 
                 // Проверяем различные форматы ответа с ошибками
                 if (errorData) {
-                    console.log('Регистрация: обработка ошибок валидации');
+                    //console.log('Регистрация: обработка ошибок валидации');
                     
                     // Если ошибки пришли в корне объекта
                     for (const [backendField, messages] of Object.entries(errorData)) {
                         const frontendField = fieldMap[backendField] || backendField;
                         
                         if (frontendField === 'general') {
-                            console.error('Регистрация: Общая ошибка формы:', messages);
+                            //console.error('Регистрация: Общая ошибка формы:', messages);
                             alert(Array.isArray(messages) ? messages.join(', ') : messages);
                             continue;
                         }
@@ -213,22 +213,22 @@ $(document).ready(function() {
                             input.classList.add('is-invalid');
                             const errorMessage = Array.isArray(messages) ? messages.join(', ') : messages;
                             errorDiv.textContent = errorMessage;
-                            console.log(`Регистрация: ошибка для поля ${frontendField}:`, errorMessage);
+                            //console.log(`Регистрация: ошибка для поля ${frontendField}:`, errorMessage);
                         } else {
-                            console.warn(`Регистрация: не найден элемент для поля ${backendField} (frontend: ${frontendField})`);
+                            //console.warn(`Регистрация: не найден элемент для поля ${backendField} (frontend: ${frontendField})`);
                         }
                     }
                 } else {
-                    console.error('Регистрация: неожиданный формат ответа с ошибкой:', errorData);
+                    //console.error('Регистрация: неожиданный формат ответа с ошибкой:', errorData);
                     alert('Произошла ошибка при регистрации');
                 }
             } else {
-                console.log('Регистрация: успешный ответ', errorData);
+                //console.log('Регистрация: успешный ответ', errorData);
                 localStorage.setItem('userData', JSON.stringify(errorData));
                 window.location.href = '/profile/';
             }
         } catch (error) {
-            console.error('Регистрация: ошибка запроса:', error);
+            //console.error('Регистрация: ошибка запроса:', error);
             alert('Произошла сетевая ошибка при регистрации');
         }
     });
