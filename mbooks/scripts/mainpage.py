@@ -23,6 +23,10 @@ def serializeBooks(books: list) -> list:
 
     # Проход по всему списку книг
     for book in books:
+        genres = Genre.objects.filter(bookgenre__book=book).values_list('name', flat=True)
+        authors = Author.objects.filter(bookauthor__book=book).values_list('name', flat=True)
+        publishers = Publisher.objects.filter(bookpublisher__book=book).values_list('name', flat=True)
+
         # Хранит в себе закодированное изображение
         cover: str = ''
         if book.cover:
@@ -36,6 +40,9 @@ def serializeBooks(books: list) -> list:
             'title': book.name,
             'price': str(book.price),
             'image': cover if cover else '',
+            'genre': list(genres) if genres else '',
+            'author': list(authors) if authors else '',
+            'publisher': list(publishers) if publishers else '',
             'sold': str(book.sold)
         })
 
