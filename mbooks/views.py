@@ -17,6 +17,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 
 # Create your views here.
+def blank_view(request):
+    return redirect('/main/')
+
 def mainpage_view(request):
     if isAdm(request):
         return redirect('/my_admin/orders/')
