@@ -333,9 +333,10 @@ footer .contact-row .footer-icon {
 }
 
 .banner-text h2 {
-  font-size: 2.2rem;
+  font-size: 3.2rem;
   font-weight: bold;
   margin-bottom: 25px;
+  color:#0e1346;
 }
 
 .banner-image {
