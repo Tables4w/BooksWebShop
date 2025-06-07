@@ -470,7 +470,7 @@ nav.navbar {
   flex-grow: 1;
 }
 .book-title {
-  font-size: 1.05rem;
+  font-size: 1.4rem;
   font-weight: 600;
   color: #2d2d3a;
   margin-bottom: 0.2rem;
@@ -479,9 +479,9 @@ nav.navbar {
   margin-right: auto;
 }
 .book-author {
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: #434346;
+  color: #828282;
   margin-bottom: 0.2rem;
   min-height: 2.2em;
   margin-left: auto;
