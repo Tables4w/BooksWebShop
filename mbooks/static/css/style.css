@@ -176,6 +176,15 @@ input[type="search"]::-webkit-search-results-decoration {
 	display: -webkit-box;
 	overflow: hidden;
 }
+.book-author {
+	font-weight: 600;
+	font-size: 0.68rem;
+	margin-top: 0.5rem;
+	line-height: 1.2;
+	min-height: 2.4em;
+	display: -webkit-box;
+	overflow: hidden;
+}
 .book-price {
 	color: #007bff;
 	font-size: 0.9rem;
@@ -466,6 +475,17 @@ nav.navbar {
   color: #2d2d3a;
   margin-bottom: 0.2rem;
   min-height: 2.2em;
+  margin-left: auto;
+  margin-right: auto;
+}
+.book-author {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #434346;
+  margin-bottom: 0.2rem;
+  min-height: 2.2em;
+  margin-left: auto;
+  margin-right: auto;
 }
 .book-price {
   color: #ad525e;

@@ -130,6 +130,7 @@ $(document).ready(function() {
               <img src="${book.image}" alt="${book.title}" class="book-cover card-img-top" />
               <div class="card-body p-2">
                 <div class="book-title">${book.title}</div>
+                <div class="book-author">${book.author}</div>
                 <div class="book-price">${book.price} ₽</div>
                 <button class="btn btn-sm btn-outline-primary mt-2 w-100 buy-btn" 
                         data-id="${book.id}" 
