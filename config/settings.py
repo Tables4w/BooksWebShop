@@ -33,7 +33,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 AUTH_USER_MODEL = 'mbooks.User'
 
-ALLOWED_HOSTS = ['moorebooks.ru','http://51.250.99.49']
+ALLOWED_HOSTS = ['moorebooks.ru','51.250.99.49']
 
 STATIC_URL = '/static/'
 
