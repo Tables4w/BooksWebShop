@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import logout
 from django.http import JsonResponse
 from mbooks.models import *
-from .specfunc import detect_image_type
+from ..specfunc import detect_image_type
 import base64
 import json
 from django.http import Http404

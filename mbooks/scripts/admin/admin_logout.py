@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout
 from django.http import JsonResponse
-from .specfunc import isAdm
+from ..specfunc import isAdm
 
 
 def admin_logout_back(request):

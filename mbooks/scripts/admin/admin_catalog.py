@@ -3,7 +3,7 @@ from django.contrib.auth import logout
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from mbooks.models import *
-from .specfunc import detect_image_type
+from ..specfunc import detect_image_type
 import base64
 import json
 
