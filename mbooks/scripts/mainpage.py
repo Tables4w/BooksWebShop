@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import get_user_model
 from django.shortcuts import render
+from django.http import JsonResponse
 from mbooks.models import Book, Genre, Author, Publisher
 from base64 import b64encode
 from json import dumps
