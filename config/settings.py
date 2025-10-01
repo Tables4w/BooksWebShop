@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-from decouple import config
+#from decouple import config
 from pathlib import Path
 
 import os
@@ -26,14 +26,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+#SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = 'django-insecure-wg*ize_()(kykmk^3v#gpqno6)8pt^v2f+$fqj+o$(nl)*oa6x'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+#DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG=True
 
 AUTH_USER_MODEL = 'mbooks.User'
 
-ALLOWED_HOSTS = ['moorebooks.ru','51.250.99.49']
+#ALLOWED_HOSTS = ['moorebooks.ru','51.250.99.49']
+ALLOWED_HOSTS = []
 
 STATIC_URL = '/static/'
 
@@ -85,11 +88,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='3306'),
+        'NAME': 'MBDB',
+        'USER': 'msadmin',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
